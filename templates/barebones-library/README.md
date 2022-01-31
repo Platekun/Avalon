@@ -101,3 +101,7 @@ Prompts your [🌐 npm](https://www.npmjs.com) credentials to publish your packa
 ```shell
 ./scripts/deploy.sh
 ```
+
+## Read More
+
+- [Docker for Development: Service Containers vs Executable Containers](https://levelup.gitconnected.com/docker-for-development-service-containers-vs-executable-containers-9fb831775133)
