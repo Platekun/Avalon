@@ -1,0 +1,9 @@
+.git
+.gittignore
+.env
+docker
+scripts
+node_modules
+dist
+library/LICENSE
+library/README.md
