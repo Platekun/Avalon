@@ -15,17 +15,19 @@ root
 │   ├── start-development.Dockerfile....................................Dockerfile used to compile to compile the project using TypeScript and watch for changes.
 │   ├── test.Dockerfile.................................................Dockerfile used to execute the test runner.
 │   └── watch-tests.Dockerfile..........................................Dockerfile used to execute the test runner and watch for changes.
-├── library.............................................................Actual
+├── library
 │   ├── LICENSE.........................................................Software License.
 │   ├── jest.config.js..................................................Test runner configuration.
 │   ├── package.json....................................................Defines name, version and project dependencies.
 │   ├── source..........................................................Actual library source code.
 │   │   ├── environment.d.ts............................................Global typings.
 │   │   └── index.ts....................................................Source code entrypoint.
-│   ├── test............................................................Tests directory
+│   ├── test............................................................Tests directory.
 │   │   └── index.test.ts
 │   ├── tsconfig.json...................................................TypeScript compiler configuration.
 │   └── tsconfig.production.json........................................TypeScript compiler configuration for deployment.
+├── .gitignore
+├── .dockerignore.......................................................Filters out unnecesary files from your containers (Internal).
 └── scripts.............................................................Bash scripts used to interact with the codebase. It uses the docker directory files udner the hood.
     ├── build.sh........................................................Script to build the project.
     ├── deploy.sh.......................................................Script to deploy the project.
