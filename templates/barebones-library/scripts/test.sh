@@ -35,13 +35,13 @@ nodeModulesContainerPath="/node_modules"
 docker container rm "$containerName" &> /dev/null
 docker image rm "$imageName" &> /dev/null
 
-# Create the image for our test environment.
+# Create an image to run a "execute test runner" command.
 docker image build \
   --file "$dockerFilePath" \
   --tag "$imageName" \
   .
 
-# Create an image to run a "run tests" command.
+# Run the "Execute test runner" command container.
 docker container run \
   --rm \
   --tty \
