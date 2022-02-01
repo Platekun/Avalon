@@ -13,6 +13,24 @@ AVALON_VERSION=0.0.1;
 currentYear=(date +"%Y");
 authorName=$(whoami);
 
+displayTopLevelHelpMessage() {
+    echo "Usage: avalon COMMAND";
+    echo ""
+    echo "⚔️  A TypeScript application/library generator with opinionated defaults."
+    echo ""
+    echo "🏳  Options:";
+    echo "    --artifact=string      Sets the software artifact type (\"library\"|\"application\").";
+    echo "    --ci=string            Sets the continous integration configuration (\"barebones\"|\"github-actions\").";
+    echo ""
+    echo "📚 Commands:";
+    echo "    new      Create a new Avalon artfiact.";
+    echo "    help      Display this help message.";
+    echo ""
+    echo "Run 'avalon COMMAND help' for more information on a command.";
+
+    exit 0;
+}
+
 assertArtifactType() {
     artifactType=$1
 
@@ -34,8 +52,8 @@ assertArtifactName() {
 }
 
 handleUnknownCommand() {
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Command not supported. Try using ${GREEN}'avalon help'${ENDCOLOR} ${RED}command. ${ENDCOLOR}");
-    exit 1;
+    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Command not supported. Try using ${BLUE}'avalon help'${ENDCOLOR} ${RED}command. ${ENDCOLOR}");
+    exit 2;
 }
 
 createLibrary() {
@@ -194,6 +212,29 @@ createLibraryWithGitHubCi() {
     exit 0;
 }
 
+displayCreateNewArtifactHelpMessage() {
+    echo "Usage:  avalon new create ARTIFACT_NAME [OPTIONS] [COMMAND]";
+    echo ""
+    echo "🏗  Create software artifacts."
+    echo ""
+    echo "🏳  Options:";
+    echo "    --artifact=string      Sets the software artifact type (\"library\"|\"application\").";
+    echo "    --ci=string            Sets the continous integration configuration (\"barebones\"|\"github-actions\").";
+    echo ""
+    echo "📚 Commands:";
+    echo "    help      Display this help message.";
+    echo ""
+    echo "Run 'avalon new COMMAND help' for more information on a command.";
+
+    exit 0;
+}
+
+handleUnknownNewCommand() {
+    echo "${option} is not an Avalon command.";
+    echo "See 'avalon new help'";
+    exit 1;
+}
+
 createNewArtifact() {
     artifactName=$2;
 
@@ -204,10 +245,11 @@ createNewArtifact() {
     for option in "$@"
     do
         case "${option}" in
+            help) displayCreateNewArtifactHelpMessage;;
             "--artifact=library") artifactType="library";;
             "--ci=barebones") ci="no-ci";;
             "--ci=github-actions") ci="github-ci";;
-            "--"*) exit 2;; # TODO: Add a nicer error message.
+            "--"*) handleUnknownNewCommand;;
         esac
     done
 
@@ -230,6 +272,7 @@ execute() {
     topLevelCommand=$1;
 
     case ${topLevelCommand} in
+        help) displayTopLevelHelpMessage;;
         new) createNewArtifact $@;;
         *) handleUnknownCommand;;
     esac
