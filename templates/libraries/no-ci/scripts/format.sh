@@ -13,14 +13,14 @@ echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}�
 # ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝
 
 projectName="{{projectName}}"
-imageName="$projectName-format-image"
+imageName="${projectName}-format-image"
 dockerFilePath="./docker/format.Dockerfile"
-containerName="$projectName-format-container"
+containerName="${projectName}-format-container"
 sourceCodePath="$(pwd)/library"
-sourceCodePathWorkdir="/$projectName"
+sourceCodePathWorkdir="/${projectName}"
 
 # Node modules volume.
-nodeModulesVolumeName="$projectName-node_modules"
+nodeModulesVolumeName="${projectName}-node_modules"
 nodeModulesContainerPath="/node_modules"
 
 # ███████╗██╗  ██╗███████╗ ██████╗██╗   ██╗████████╗██╗ ██████╗ ███╗   ██╗
@@ -31,23 +31,23 @@ nodeModulesContainerPath="/node_modules"
 # ╚══════╝╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═════╝    ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝ 
 
 # Pre-execution cleanup
-docker container rm "$containerName" &> /dev/null
-docker image rm "$imageName" &> /dev/null
+docker container rm "${containerName}" &> /dev/null
+docker image rm "${imageName}" &> /dev/null
 
 # Create an image to run a "format project" command.
 docker image build \
-  --file "$dockerFilePath" \
-  --tag "$imageName" \
+  --file "${dockerFilePath}" \
+  --tag "${imageName}" \
   .
 
 # Run the "format project" command container.
 docker container run \
   --rm \
   --tty \
-  -v "$nodeModulesVolumeName":"$nodeModulesContainerPath" \
-  -v "$sourceCodePath":"$sourceCodePathWorkdir" \
-  --name "$containerName" \
-  "$imageName"
+  -v "${nodeModulesVolumeName}":"${nodeModulesContainerPath}" \
+  -v "${sourceCodePath}":"${sourceCodePathWorkdir}" \
+  --name "${containerName}" \
+  "${imageName}"
 
 # Post-execution
-docker image rm "$imageName" &> /dev/null
+docker image rm "${imageName}" &> /dev/null

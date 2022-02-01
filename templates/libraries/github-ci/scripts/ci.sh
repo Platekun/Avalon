@@ -13,9 +13,9 @@ echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}�
 # ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝
 
 projectName="{{projectName}}"
-imageName="$projectName-ci-image"
+imageName="${projectName}-ci-image"
 dockerFilePath="./docker/ci.Dockerfile"
-containerName="$projectName-ci-container"
+containerName="${projectName}-ci-container"
 
 # ███████╗██╗  ██╗███████╗ ██████╗██╗   ██╗████████╗██╗ ██████╗ ███╗   ██╗
 # ██╔════╝╚██╗██╔╝██╔════╝██╔════╝██║   ██║╚══██╔══╝██║██╔═══██╗████╗  ██║
@@ -26,13 +26,13 @@ containerName="$projectName-ci-container"
 
 # Create an image to run a "install project" command.
 docker image build \
-  --file "$dockerFilePath" \
-  --tag "$imageName" \
+  --file "${dockerFilePath}" \
+  --tag "${imageName}" \
   .
 
 # Run the "Execute test runner" command container.
 docker container run \
   --rm \
   --tty \
-  --name "$containerName" \
-  "$imageName" \
+  --name "${containerName}" \
+  "${imageName}" \

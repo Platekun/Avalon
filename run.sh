@@ -16,7 +16,7 @@ authorName=$(whoami);
 assertArtifactType() {
     artifactType=$1
 
-    if [[ $artifactType != "library" && $artifactType != "application" ]]
+    if [[ ${artifactType} != "library" && ${artifactType} != "application" ]]
     then
         echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}An unsupported artifact type '${2}' was provided. Avalon only supported ${GREEN}'library'${ENDCOLOR} ${RED}or${ENDCOLOR} ${GREEN}'app'${ENDCOLOR} ${RED}as artifact types${ENDCOLOR}.");
         exit 1;
@@ -26,7 +26,7 @@ assertArtifactType() {
 assertArtifactName() {
     artifactName=$1
 
-    if [[ -z $artifactName ]]
+    if [[ -z ${artifactName} ]]
     then
         echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}A name for the library is required.${ENDCOLOR}");
         exit 1;
@@ -48,16 +48,16 @@ createLibrary() {
 
     artifactName=$1;
     ci=$2;
-    imageName="$artifactName-image";
-    dockerfilePath="$AVALON_PATH/docker/libraries/$ci.Dockerfile";
-    containerName="$artifactName-container";
+    imageName="${artifactName}-image";
+    dockerfilePath="${AVALON_PATH}/docker/libraries/${ci}.Dockerfile";
+    containerName="${artifactName}-container";
 
     # Node modules volume
-    nodeModulesVolumeName="$artifactName-node_modules";
+    nodeModulesVolumeName="${artifactName}-node_modules";
     nodeModulesContainerPath="/node_modules";
 
     # Source Code
-    sourceVolumeName="$artifactName-source";
+    sourceVolumeName="${artifactName}-source";
     sourceCodeContainerPath="/avalon-project";
 
     # ███████╗██╗  ██╗███████╗ ██████╗██╗   ██╗████████╗██╗ ██████╗ ███╗   ██╗
@@ -70,20 +70,20 @@ createLibrary() {
     echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Bootstrapping a new TypeScript library...${ENDCOLOR}");
 
     # Pre-execution cleanup
-    docker container rm "$containerName" &> /dev/null;
-    docker volume rm "$sourceVolumeName" &> /dev/null;
-    docker image rm "$imageName" &> /dev/null;
+    docker container rm "${containerName}" &> /dev/null;
+    docker volume rm "${sourceVolumeName}" &> /dev/null;
+    docker image rm "${imageName}" &> /dev/null;
 
     echo "$dockerfilePath $imageName $AVALON_PATH"
 
     # Create an image to run a "create library" command.
     docker image build \
-        --build-arg PROJECT_NAME=$artifactName \
+        --build-arg PROJECT_NAME=${artifactName} \
         --build-arg YEAR=2021 \
-        --build-arg AUTHOR_NAME=$authorName \
-        --file $dockerfilePath \
-        --tag "$imageName" \
-        $AVALON_PATH || \
+        --build-arg AUTHOR_NAME=${authorName} \
+        --file ${dockerfilePath} \
+        --tag "${imageName}" \
+        ${AVALON_PATH} || \
         {
             echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while creating an image to run a 'create library' command.");
             exit 1;
@@ -93,17 +93,17 @@ createLibrary() {
     docker container run \
         --interactive \
         --tty \
-        -v "$nodeModulesVolumeName":"$nodeModulesContainerPath" \
-        -v "$sourceVolumeName":"$sourceCodeContainerPath" \
-        --name "$containerName" \
-        "$imageName" \
+        -v "${nodeModulesVolumeName}":"${nodeModulesContainerPath}" \
+        -v "${sourceVolumeName}":"${sourceCodeContainerPath}" \
+        --name "${containerName}" \
+        "${imageName}" \
         || {
             echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while running a 'create library' container command.");
             exit 1;
         };
 
     # Copy the contents of the source code volume into a new `library` directory.
-    docker cp "$containerName":"$sourceCodeContainerPath" "./$artifactName" || \
+    docker cp "${containerName}":"${sourceCodeContainerPath}" "./${artifactName}" || \
     { 
         echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while copying the contents of the source code volume into a new `library` directory.");
         exit 1;
@@ -112,14 +112,14 @@ createLibrary() {
     echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Cleaning up...${ENDCOLOR}");
 
     # Post-execution cleanup
-    docker volume rm "$sourceVolumeName" &> /dev/null;
-    docker container rm "$containerName" &> /dev/null;
-    docker image rm "$imageName" &> /dev/null;
+    docker volume rm "${sourceVolumeName}" &> /dev/null;
+    docker container rm "${containerName}" &> /dev/null;
+    docker image rm "${imageName}" &> /dev/null;
 
-    cd $artifactName;
+    cd ${artifactName};
     git init;
     git add --all;
-    git commit -m "Initial commit from Avalon v$AVALON_VERSION"
+    git commit -m "Initial commit from Avalon v${AVALON_VERSION}"
     cd ..;
 }
 
@@ -156,7 +156,7 @@ createLibraryWithNoCi() {
 
     🍻 Happy hacking!";
 
-    printf "$successMessage";
+    printf "${successMessage}";
     exit 0;
 }
 
@@ -190,7 +190,7 @@ createLibraryWithGitHubCi() {
 
     🍻 Happy hacking!";
 
-    printf "$successMessage";
+    printf "${successMessage}";
     exit 0;
 }
 
@@ -203,7 +203,7 @@ createNewArtifact() {
 
     for option in "$@"
     do
-        case "$option" in
+        case "${option}" in
             "--artifact=library") artifactType="library";;
             "--ci=barebones") ci="no-ci";;
             "--ci=github-actions") ci="github-ci";;
@@ -211,17 +211,17 @@ createNewArtifact() {
         esac
     done
 
-    assertArtifactName $artifactName;
-    assertArtifactType $artifactType;
+    assertArtifactName ${artifactName};
+    assertArtifactType ${artifactType};
 
-    if [ $artifactType == "library" ]
+    if [ ${artifactType} == "library" ]
     then
-        if [ $ci == "no-ci" ]
+        if [ ${ci} == "no-ci" ]
         then
-            createLibraryWithNoCi $artifactName $ci;
-        elif [ $ci == "github-ci" ]
+            createLibraryWithNoCi $artifactName ${ci};
+        elif [ ${ci} == "github-ci" ]
         then
-            createLibraryWithGitHubCi $artifactName $ci;
+            createLibraryWithGitHubCi $artifactName ${ci};
         fi
     fi
 }
@@ -229,7 +229,7 @@ createNewArtifact() {
 execute() {
     topLevelCommand=$1;
 
-    case $topLevelCommand in
+    case ${topLevelCommand} in
         new) createNewArtifact $@;;
         *) handleUnknownCommand;;
     esac
