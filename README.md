@@ -2,11 +2,14 @@
 
 Avalon is a TypeScript application/library generator with a few opinionated defaults. Use Avalon to quickly scaffold projects that leverage the benefits of using [Docker](https://www.docker.com) as a development environment.
 
-Avalon leverages the practice of executable containers to avoid having to configure different node.js versions in your machine. Read More at [Docker for Development: Service Containers vs Executable Containers](https://levelup.gitconnected.com/docker-for-development-service-containers-vs-executable-containers-9fb831775133).
+Avalon leverages the practice of [executable containers](https://levelup.gitconnected.com/docker-for-development-service-containers-vs-executable-containers-9fb831775133) to avoid having to configure different node.js versions in your machine.
 
 ## Pre-requisites
 
-Before using Avalon make sure you have [🐳 Docker](https://docs.docker.com/get-docker/) installed on your machine.
+Before using Avalon we have to make sure we have isntalled the following on your machine:
+
+- [🐳 Docker](https://docs.docker.com/get-docker/).
+- [🌳 Git](https://git-scm.com/downloads).
 
 ## Installation
 
@@ -29,7 +32,7 @@ After making the changes of the installation step applicable, you can now use Av
 A _barebones_ library is a [🌐 TypeScript](https://www.npmjs.com/package/typescript) library without anykind of Continous Integration (CI) configuration. This is ideal for projects where you do not need the overhead of having a CI step or you wish to setup our own CI step.
 
 ```shell
-avalon new barebones-library <<library-name>>
+avalon new <<library-name>> --artifact=library --ci=barebones
 ```
 
 #### Scripts
