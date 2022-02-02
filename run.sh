@@ -288,6 +288,10 @@ handleFormatCommand() {
     bash ./scripts/format.sh;
 }
 
+handleBuildCommand() {
+    bash ./scripts/build.sh;
+}
+
 execute() {
     topLevelCommand=$1;
 
@@ -303,6 +307,7 @@ execute() {
         test) handleTestCommand $2;;
         watch-tests) handleWatchTestsCommand;;
         format) handleFormatCommand;;
+        build) handleBuildCommand;;
         *) handleUnknownCommand;;
     esac
 }
