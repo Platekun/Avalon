@@ -284,6 +284,10 @@ handleWatchTestsCommand() {
     bash ./scripts/watch-tests.sh;
 }
 
+handleFormatCommand() {
+    bash ./scripts/format.sh;
+}
+
 execute() {
     topLevelCommand=$1;
 
@@ -298,6 +302,7 @@ execute() {
         develop) handleDevelopCommand;;
         test) handleTestCommand $2;;
         watch-tests) handleWatchTestsCommand;;
+        format) handleFormatCommand;;
         *) handleUnknownCommand;;
     esac
 }
