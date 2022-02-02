@@ -18,6 +18,44 @@ NO_CI_CD="no-ci-cd";
 currentYear=(date +"%Y");
 authorName=$(whoami);
 
+handleDevelopCommand() {
+    bash ./scripts/start-development.sh;
+}
+
+handleTestCommand() {
+    bash ./scripts/test.sh $1;
+}
+
+handleWatchTestsCommand() {
+    bash ./scripts/watch-tests.sh;
+}
+
+handleFormatCommand() {
+    bash ./scripts/format.sh;
+}
+
+handleBuildCommand() {
+    bash ./scripts/build.sh;
+}
+
+handleReleaseCommand() {
+    isABareBonesLibrary=$(grep -e "\"ci-cd\": \"barebones\"" ".avaloncli.json");
+    
+    if [[ -n ${isABareBonesLibrary} ]]
+    then
+        bash ./scripts/release.sh;
+    else
+        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Command not supported for this type of artifact. The ${BLUE}'avalon release'${ENDCOLOR} ${RED}command is only available for Avalon barebones libraries.${ENDCOLOR}");
+        exit 2;
+    fi
+}
+
+handleUnknownNewCommand() {
+    echo "${option} is not an Avalon command.";
+    echo "See 'avalon new help'";
+    exit 1;
+}
+
 displayTopLevelHelpMessage() {
     echo "Usage: avalon COMMAND";
     echo ""
@@ -56,19 +94,7 @@ assertArtifactName() {
     fi
 }
 
-handleUnknownCommand() {
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Command not supported. Try using ${BLUE}'avalon help'${ENDCOLOR} ${RED}command. ${ENDCOLOR}");
-    exit 2;
-}
-
 createLibrary() {
-    # ███████╗███████╗████████╗██╗   ██╗██████╗ 
-    # ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗
-    # ███████╗█████╗     ██║   ██║   ██║██████╔╝
-    # ╚════██║██╔══╝     ██║   ██║   ██║██╔═══╝ 
-    # ███████║███████╗   ██║   ╚██████╔╝██║     
-    # ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝
-
     artifactName=$1;
     ci=$2;
     imageName="${artifactName}-image";
@@ -82,13 +108,6 @@ createLibrary() {
     # Source Code
     sourceVolumeName="${artifactName}-source";
     sourceCodeContainerPath="/avalon-project";
-
-    # ███████╗██╗  ██╗███████╗ ██████╗██╗   ██╗████████╗██╗ ██████╗ ███╗   ██╗
-    # ██╔════╝╚██╗██╔╝██╔════╝██╔════╝██║   ██║╚══██╔══╝██║██╔═══██╗████╗  ██║
-    # █████╗   ╚███╔╝ █████╗  ██║     ██║   ██║   ██║   ██║██║   ██║██╔██╗ ██║
-    # ██╔══╝   ██╔██╗ ██╔══╝  ██║     ██║   ██║   ██║   ██║██║   ██║██║╚██╗██║
-    # ███████╗██╔╝ ██╗███████╗╚██████╗╚██████╔╝   ██║   ██║╚██████╔╝██║ ╚████║
-    # ╚══════╝╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═════╝    ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
 
     echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Bootstrapping a new TypeScript library...${ENDCOLOR}");
 
@@ -233,12 +252,6 @@ displayCreateNewArtifactHelpMessage() {
     exit 0;
 }
 
-handleUnknownNewCommand() {
-    echo "${option} is not an Avalon command.";
-    echo "See 'avalon new help'";
-    exit 1;
-}
-
 createNewArtifact() {
     artifactName=$2;
 
@@ -272,24 +285,9 @@ createNewArtifact() {
     fi
 }
 
-handleDevelopCommand() {
-    bash ./scripts/start-development.sh;
-}
-
-handleTestCommand() {
-    bash ./scripts/test.sh $1;
-}
-
-handleWatchTestsCommand() {
-    bash ./scripts/watch-tests.sh;
-}
-
-handleFormatCommand() {
-    bash ./scripts/format.sh;
-}
-
-handleBuildCommand() {
-    bash ./scripts/build.sh;
+handleUnknownCommand() {
+    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Command not supported. Try using ${BLUE}'avalon help'${ENDCOLOR} ${RED}command. ${ENDCOLOR}");
+    exit 2;
 }
 
 execute() {
@@ -308,6 +306,7 @@ execute() {
         watch-tests) handleWatchTestsCommand;;
         format) handleFormatCommand;;
         build) handleBuildCommand;;
+        release) handleReleaseCommand;;
         *) handleUnknownCommand;;
     esac
 }
