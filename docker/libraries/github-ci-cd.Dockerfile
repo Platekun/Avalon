@@ -1,5 +1,7 @@
 FROM node:16-alpine
 
+RUN npm install -g npm@8.4.0
+
 WORKDIR /avalon-project/library
 COPY ./templates/libraries/github-ci-cd/library/package.json .
 RUN npm install --silent
