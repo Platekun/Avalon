@@ -147,8 +147,8 @@ To perform the CI step in your project, you only need to push code to the reposi
 
 #### How It Works
 
-1. A new GitHub release is created.
-2. The _CI_ GitHub action (`.github/workflows/cd.yml`) is triggered.
+1. Changes are pushed to the GitHub repository.
+2. The _CI_ GitHub action (`.github/workflows/ci.yml`) is triggered.
 3. The _CI_ GitHub action builds and tests the project using a `build` step.
 
 ### Continous Delivery
