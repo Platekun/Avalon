@@ -6,4 +6,4 @@ WORKDIR /{{projectName}}
 
 COPY ./library .
 
-CMD ["npm", "run", "deploy"]
+CMD ["npm", "run", "release"]

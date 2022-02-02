@@ -1,5 +1,30 @@
 # Getting Started with Avalon
 
+```
+                                                            ~
+                                        ~                '
+                                          `        (O)       ~
+                                                    H      '
+                                    ~               H
+                                      `        ____hHh____
+                                        ~      `---------'    ~
+                                          `       | | |     '
+                                                  | | |
+                                                  | | |
+                                                  | | |
+                                                  | | |
+                                                  | | |
+                                                  | | |
+                                                  | | |
+                                            _____;~~~~~:____
+                                          __'                \
+                                        /         \          |
+                                        |    _\\_   |         |\
+                                        |     \\    |         | |      ___
+                                __    /     __     |         | |    _/   \
+                                /__\  |_____/__\____|_________|__\  /__\___\
+```
+
 This project was bootstrapped with Avalon.
 
 ## Project Structure
@@ -9,7 +34,7 @@ root
 ├── README.md...........................................................README of your project.
 ├── docker..............................................................Dockerfiles to execute commands (Use them via scripts).
 │   ├── build.Dockerfile................................................Dockerfile used to execute to compile the project using TypeScript.
-│   ├── deploy.Dockerfile...............................................Dockerfile used to execute to deploy to npm.
+│   ├── release.Dockerfile...............................................Dockerfile used to execute to release to npm.
 │   ├── format.Dockerfile...............................................Dockerfile used run prettier.
 │   ├── install.Dockerfile..............................................Dockerfile used to install the node_modules of the project.
 │   ├── start-development.Dockerfile....................................Dockerfile used to compile to compile the project using TypeScript and watch for changes.
@@ -25,12 +50,12 @@ root
 │   ├── test............................................................Tests directory.
 │   │   └── index.test.ts
 │   ├── tsconfig.json...................................................TypeScript compiler configuration.
-│   └── tsconfig.production.json........................................TypeScript compiler configuration for deployment.
+│   └── tsconfig.production.json........................................TypeScript compiler configuration for releasement.
 ├── .gitignore
 ├── .dockerignore.......................................................Filters out unnecesary files from your containers (Internal).
 └── scripts.............................................................Bash scripts used to interact with the codebase. It uses the docker directory files udner the hood.
     ├── build.sh........................................................Script to build the project.
-    ├── deploy.sh.......................................................Script to deploy the project.
+    ├── release.sh.......................................................Script to release the project.
     ├── format.sh.......................................................Script to format the project.
     ├── install.sh......................................................Script to install the project.
     ├── start-development.sh............................................Script to start development.
@@ -54,7 +79,7 @@ Installs the library dependencies (AKA your node_modules):
 
 ### Development
 
-Compiles your source code using the [🌐 TypeScript compiler](https://www.npmjs.com/package/typescript) and re-compiles on changes:
+Compiles your source code using the [🧙‍♂️ TypeScript compiler](https://www.npmjs.com/package/typescript) and re-compiles on changes:
 
 ```shell
 ./scripts/start-development.sh
@@ -62,7 +87,7 @@ Compiles your source code using the [🌐 TypeScript compiler](https://www.npmjs
 
 ### Tests
 
-Starts the test runner (💡 You can use a custom test file path):
+Starts the [🃏 Jest](https://jestjs.io) test runner:
 
 ```shell
 ./scripts/test.sh
@@ -72,9 +97,11 @@ Starts the test runner (💡 You can use a custom test file path):
 ./scripts/test.sh tests/some-test.spec.ts
 ```
 
+**Note**: 💡 You can use a custom test file path.
+
 ### Watch Tests
 
-Starts the test runner and watches for changes:
+Starts the [🃏 Jest](https://jestjs.io) test runner and watches for changes:
 
 ```shell
 ./scripts/watch-tests.sh
@@ -82,7 +109,7 @@ Starts the test runner and watches for changes:
 
 ### Formatting
 
-Formats your source code using [🌐 Prettier](https://prettier.io)
+Formats your source code using [💅 Prettier](https://prettier.io)
 
 ```shell
 ./scripts/format.sh
@@ -90,20 +117,20 @@ Formats your source code using [🌐 Prettier](https://prettier.io)
 
 ### Building
 
-Compiles your source code using the [🌐 TypeScript compiler](https://www.npmjs.com/package/typescript):
+Compiles your source code using the [🧙‍♂️ TypeScript compiler](https://www.npmjs.com/package/typescript):
 
 ```shell
 ./scripts/build.sh
 ```
 
-### Deploying to NPM
+### Publishing to NPM
 
-Prompts your [🌐 npm](https://www.npmjs.com) credentials to publish your package:
+Prompts your [📦 npm](https://www.npmjs.com) credentials to publish your package:
 
 ```shell
-./scripts/deploy.sh
+./scripts/release.sh
 ```
 
 ## Read More
 
-- [Docker for Development: Service Containers vs Executable Containers](https://levelup.gitconnected.com/docker-for-development-service-containers-vs-executable-containers-9fb831775133)
+- [Docker for Development: Service Containers vs Executable Containers](https://levelup.gitconnected.com/docker-for-development-service-containers-vs-executable-containers-9fb831775133).

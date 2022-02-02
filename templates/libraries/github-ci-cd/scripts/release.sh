@@ -1,9 +1,19 @@
 #!/bin/bash
 
-GREEN="\e[32m"
-ENDCOLOR="\e[0m"
+RED="\e[31m";
+GREEN="\e[32m";
+BLUE="\e[34m";
+ENDCOLOR="\e[0m";
 
-echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}📦 Building project...${ENDCOLOR}")
+NPM_AUTH_TOKEN=$1
+
+if [[ -z "${NPM_AUTH_TOKEN}" ]]
+then
+  echo $(printf "${RED}Authorization token not found. Create a valid authorization token and store it in the project's secrets as NPM_AUTH_TOKEN. Read more at https://docs.npmjs.com/creating-and-viewing-access-tokens.${ENDCOLOR}")
+  exit 1;
+fi
+
+echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}🌎 Preparing to release...${ENDCOLOR}")
 
 # ███████╗███████╗████████╗██╗   ██╗██████╗ 
 # ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗
@@ -13,15 +23,9 @@ echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}�
 # ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝
 
 projectName="{{projectName}}"
-imageName="${projectName}-build-image"
-dockerFilePath="./docker/build.Dockerfile"
-containerName="${projectName}-build-container"
-sourceCodePath="$(pwd)/library"
-sourceCodePathWorkdir="/${projectName}"
-
-# Node modules volume.
-nodeModulesVolumeName="${projectName}-node_modules"
-nodeModulesContainerPath="/node_modules"
+imageName="${projectName}-release-image"
+dockerFilePath="./docker/release.Dockerfile"
+containerName="${projectName}-release-container"
 
 # ███████╗██╗  ██╗███████╗ ██████╗██╗   ██╗████████╗██╗ ██████╗ ███╗   ██╗
 # ██╔════╝╚██╗██╔╝██╔════╝██╔════╝██║   ██║╚══██╔══╝██║██╔═══██╗████╗  ██║
@@ -30,24 +34,15 @@ nodeModulesContainerPath="/node_modules"
 # ███████╗██╔╝ ██╗███████╗╚██████╗╚██████╔╝   ██║   ██║╚██████╔╝██║ ╚████║
 # ╚══════╝╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═════╝    ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝ 
 
-# Pre-execution cleanup.
-docker container rm "${containerName}" &> /dev/null
-docker image rm "${imageName}" &> /dev/null
-
-# Create an image to run a "build project" command.
+# Create an image to run a "release project" command.
 docker image build \
+  --build-arg NPM_AUTH_TOKEN=${NPM_AUTH_TOKEN} \
   --file "${dockerFilePath}" \
   --tag "${imageName}" \
   .
 
-# Run the "build project" command container.
+# Run the "release project" command container.
 docker container run \
   --rm \
-  --tty \
-  -v "${nodeModulesVolumeName}":"${nodeModulesContainerPath}" \
-  -v "${sourceCodePath}":"${sourceCodePathWorkdir}" \
-  --name "${containerName}" \
+  --name "${buildContainerName}" \
   "${imageName}"
-
-# Post-execution cleanup.
-docker image rm "${imageName}" &> /dev/null

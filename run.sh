@@ -2,12 +2,17 @@
 
 # Note: Make sure you have `AVALON_PATH` as an environment variable in your shell profile. It must be an absolute path that points to this directory.
 
+AVALON_VERSION=0.0.1;
+
 RED="\e[31m";
 GREEN="\e[32m";
 BLUE="\e[34m";
 ENDCOLOR="\e[0m";
 
-AVALON_VERSION=0.0.1;
+# Enums
+LIBRARY_ARTIFACT_TYPE="library";
+GITHUB_CI_CD="github-ci-cd";
+NO_CI_CD="no-ci-cd";
 
 # License
 currentYear=(date +"%Y");
@@ -20,11 +25,11 @@ displayTopLevelHelpMessage() {
     echo ""
     echo "🏳  Options:";
     echo "    --artifact=string      Sets the software artifact type (\"library\"|\"application\").";
-    echo "    --ci=string            Sets the continous integration configuration (\"barebones\"|\"github-actions\").";
+    echo "    --ci-cd=string            Sets the continous integration configuration (\"barebones\"|\"github-actions\").";
     echo ""
     echo "📚 Commands:";
     echo "    new      Create a new Avalon artfiact.";
-    echo "    help      Display this help message.";
+    echo "    help     Display this help message.";
     echo ""
     echo "Run 'avalon COMMAND help' for more information on a command.";
 
@@ -144,29 +149,28 @@ createLibrary() {
 createLibraryWithNoCi() {
     createLibrary $1 $2;
 
-    successMessage="
-    ℹ️  Inside that directory, you can run several commands from the ${BLUE}scripts${ENDCOLOR} directory:
+    successMessage="ℹ️  Inside that directory, you can run several commands from the ${BLUE}scripts${ENDCOLOR} directory:
 
         ${BLUE}install${ENDCOLOR}
         Installs the library dependencies (AKA your node_modules).
 
         ${BLUE}start-development${ENDCOLOR}
-        Compiles your source code using the TypeScript compiler (🌐 https://www.npmjs.com/package/typescript) and re-compiles on changes.
+        Compiles your source code using the 🧙‍♂️ TypeScript compiler (https://www.npmjs.com/package/typescript) and re-compiles on changes.
 
         ${BLUE}test${ENDCOLOR}
-        Starts the test runner (💡 You can use a custom test file path).
+        Starts the 🃏 Jest (https://jestjs.io) test runner.
 
         ${BLUE}watch-tests${ENDCOLOR}
-        Starts the test runner and watches for changes (💡 You can use a custom test file path).
+        Starts the 🃏 Jest (https://jestjs.io) test runner and watches for changes.
 
         ${BLUE}format${ENDCOLOR}
-        Formats your source code using Prettier (🌐 https://prettier.io).
+        Formats your source code using 💅 Prettier (https://prettier.io).
 
         ${BLUE}build${ENDCOLOR}
-        Compiles your source code using the TypeScript compiler (🌐 https://www.npmjs.com/package/typescript).
+        Compiles your source code using the 🧙‍♂️ TypeScript compiler (https://www.npmjs.com/package/typescript).
 
-        ${BLUE}deploy${ENDCOLOR}
-        Prompts your npm (🌐 https://www.npmjs.com) credentials to publish your package.
+        ${BLUE}release${ENDCOLOR}
+        Prompts your 📦 npm (https://www.npmjs.com) credentials to publish your package.
 
     💡 We suggest that you start by typing:
         ${BLUE}cd${ENDCOLOR} ${1}
@@ -178,7 +182,7 @@ createLibraryWithNoCi() {
     exit 0;
 }
 
-createLibraryWithGitHubCi() {
+createLibraryWithGitHubCiCd() {
     createLibrary $1 $2;
 
     successMessage="
@@ -188,19 +192,19 @@ createLibraryWithGitHubCi() {
         Installs the library dependencies (AKA your node_modules).
 
         ${BLUE}start-development${ENDCOLOR}
-        Compiles your source code using the TypeScript compiler (🌐 https://www.npmjs.com/package/typescript) and re-compiles on changes.
+        Compiles your source code using the 🧙‍♂️ TypeScript compiler (https://www.npmjs.com/package/typescript) and re-compiles on changes.
 
         ${BLUE}test${ENDCOLOR}
-        Starts the test runner (💡 You can use a custom test file path).
+        Starts the 🃏 Jest (https://jestjs.io) test runner.
 
         ${BLUE}watch-tests${ENDCOLOR}
-        Starts the test runner and watches for changes (💡 You can use a custom test file path).
+        Starts the 🃏 Jest (https://jestjs.io) test runner and watches for changes.
 
         ${BLUE}format${ENDCOLOR}
-        Formats your source code using Prettier (🌐 https://prettier.io).
+        Formats your source code using 💅 Prettier (https://prettier.io).
 
         ${BLUE}build${ENDCOLOR}
-        Compiles your source code using the TypeScript compiler (🌐 https://www.npmjs.com/package/typescript).
+        Compiles your source code using the 🧙‍♂️ TypeScript compiler (https://www.npmjs.com/package/typescript).
 
     💡 We suggest that you start by typing:
         ${BLUE}cd${ENDCOLOR} ${1}
@@ -219,7 +223,7 @@ displayCreateNewArtifactHelpMessage() {
     echo ""
     echo "🏳  Options:";
     echo "    --artifact=string      Sets the software artifact type (\"library\"|\"application\").";
-    echo "    --ci=string            Sets the continous integration configuration (\"barebones\"|\"github-actions\").";
+    echo "    --ci-cd=string            Sets the continous integration configuration (\"barebones\"|\"github-actions\").";
     echo ""
     echo "📚 Commands:";
     echo "    help      Display this help message.";
@@ -239,16 +243,16 @@ createNewArtifact() {
     artifactName=$2;
 
     # Defaults.
-    artifactType="library";
-    ci="github-ci";
+    artifactType=${LIBRARY_ARTIFACT_TYPE};
+    cicd=${GITHUB_CI_CD};
 
     for option in "$@"
     do
-        case "${option}" in
+        case ${option} in
             help) displayCreateNewArtifactHelpMessage;;
-            "--artifact=library") artifactType="library";;
-            "--ci=barebones") ci="no-ci";;
-            "--ci=github-actions") ci="github-ci";;
+            "--artifact=library") artifactType=${LIBRARY_ARTIFACT_TYPE};;
+            "--ci-cd=barebones") cicd=${NO_CI_CD};;
+            "--ci-cd=github-actions") cicd=${GITHUB_CI_CD};;
             "--"*) handleUnknownNewCommand;;
         esac
     done
@@ -256,20 +260,25 @@ createNewArtifact() {
     assertArtifactName ${artifactName};
     assertArtifactType ${artifactType};
 
-    if [ ${artifactType} == "library" ]
+    if [ ${artifactType} == ${LIBRARY_ARTIFACT_TYPE} ]
     then
-        if [ ${ci} == "no-ci" ]
+        if [ ${cicd} == ${NO_CI_CD} ]
         then
-            createLibraryWithNoCi $artifactName ${ci};
-        elif [ ${ci} == "github-ci" ]
+            createLibraryWithNoCi ${artifactName} ${cicd};
+        elif [ ${cicd} == ${GITHUB_CI_CD} ]
         then
-            createLibraryWithGitHubCi $artifactName ${ci};
+            createLibraryWithGitHubCiCd ${artifactName} ${cicd};
         fi
     fi
 }
 
 execute() {
     topLevelCommand=$1;
+
+    if [[ $# == 0 ]]
+    then
+        displayTopLevelHelpMessage;
+    fi
 
     case ${topLevelCommand} in
         help) displayTopLevelHelpMessage;;

@@ -3,7 +3,7 @@
 GREEN="\e[32m"
 ENDCOLOR="\e[0m"
 
-echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}🌎 Preparing to deploy...${ENDCOLOR}")
+echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}🌎 Preparing to release...${ENDCOLOR}")
 
 # ███████╗███████╗████████╗██╗   ██╗██████╗ 
 # ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗
@@ -13,9 +13,9 @@ echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}�
 # ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝
 
 projectName="{{projectName}}"
-deploymentImageName="${projectName}-deployment-image"
-deploymentDockerFilePath="./docker/deploy.Dockerfile"
-deploymentContainerName="${projectName}-deployment-container"
+imageName="${projectName}-release-image"
+dockerFilePath="./docker/release.Dockerfile"
+containerName="${projectName}-release-container"
 sourceCodePath="$(pwd)/library"
 sourceCodePathWorkdir="/${projectName}"
 
@@ -27,23 +27,23 @@ sourceCodePathWorkdir="/${projectName}"
 # ╚══════╝╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═════╝    ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝ 
 
 # Pre-execution cleanup.
-docker container rm "${deploymentContainerName}" &> /dev/null
-docker image rm "${deploymentImageName}" &> /dev/null
+docker container rm "${containerName}" &> /dev/null
+docker image rm "${imageName}" &> /dev/null
 
-# Create an image to run a "deploy project" command.
+# Create an image to run a "release project" command.
 docker image build \
-  --file "${deploymentDockerFilePath}" \
-  --tag "${deploymentImageName}" \
+  --file "${dockerFilePath}" \
+  --tag "${imageName}" \
   .
 
-# Run the "deploy project" command container.
+# Run the "release project" command container.
 docker container run \
   --rm \
   --interactive \
   --tty \
   -v "${sourceCodePath}":"${sourceCodePathWorkdir}" \
   --name "${buildContainerName}" \
-  "${deploymentImageName}"
+  "${imageName}"
 
 # Post-execution cleanup.
-docker image rm "${deploymentImageName}" &> /dev/null
+docker image rm "${imageName}" &> /dev/null

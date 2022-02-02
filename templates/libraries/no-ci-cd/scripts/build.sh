@@ -3,7 +3,7 @@
 GREEN="\e[32m"
 ENDCOLOR="\e[0m"
 
-echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}🔎 Running tests...${ENDCOLOR}")
+echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}🏗 Building project...${ENDCOLOR}")
 
 # ███████╗███████╗████████╗██╗   ██╗██████╗ 
 # ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗
@@ -13,9 +13,9 @@ echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}�
 # ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝
 
 projectName="{{projectName}}"
-testImageName="${projectName}-test-image"
-testDockerFilePath="./docker/watch-tests.Dockerfile"
-testContainerName="${projectName}-test-container"
+imageName="${projectName}-build-image"
+dockerFilePath="./docker/build.Dockerfile"
+containerName="${projectName}-build-container"
 sourceCodePath="$(pwd)/library"
 sourceCodePathWorkdir="/${projectName}"
 
@@ -28,27 +28,26 @@ nodeModulesContainerPath="/node_modules"
 # █████╗   ╚███╔╝ █████╗  ██║     ██║   ██║   ██║   ██║██║   ██║██╔██╗ ██║
 # ██╔══╝   ██╔██╗ ██╔══╝  ██║     ██║   ██║   ██║   ██║██║   ██║██║╚██╗██║
 # ███████╗██╔╝ ██╗███████╗╚██████╗╚██████╔╝   ██║   ██║╚██████╔╝██║ ╚████║
-# ╚══════╝╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═════╝    ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
+# ╚══════╝╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═════╝    ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝ 
 
 # Pre-execution cleanup.
-docker container rm "${testContainerName}" &> /dev/null
-docker image rm "${testImageName}" &> /dev/null
+docker container rm "${containerName}" &> /dev/null
+docker image rm "${imageName}" &> /dev/null
 
-# Create an image to run a "start development mode" command.
+# Create an image to run a "build project" command.
 docker image build \
-  --file "${testDockerFilePath}" \
-  --tag "${testImageName}" \
+  --file "${dockerFilePath}" \
+  --tag "${imageName}" \
   .
 
-# Create an image to run a "run tests" command.
+# Run the "build project" command container.
 docker container run \
   --rm \
-  --interactive \
   --tty \
   -v "${nodeModulesVolumeName}":"${nodeModulesContainerPath}" \
   -v "${sourceCodePath}":"${sourceCodePathWorkdir}" \
-  --name "${testContainerName}" \
-  "${testImageName}"
+  --name "${containerName}" \
+  "${imageName}"
 
-# Post-execution cleanup
-docker image rm "${testImageName}" &> /dev/null
+# Post-execution cleanup.
+docker image rm "${imageName}" &> /dev/null

@@ -1,5 +1,30 @@
 # ⚔️ Avalon
 
+```
+                                                            ~
+                                        ~                '
+                                          `        (O)       ~
+                                                    H      '
+                                    ~               H
+                                      `        ____hHh____
+                                        ~      `---------'    ~
+                                          `       | | |     '
+                                                  | | |
+                                                  | | |
+                                                  | | |
+                                                  | | |
+                                                  | | |
+                                                  | | |
+                                                  | | |
+                                            _____;~~~~~:____
+                                          __'                \
+                                        /         \          |
+                                        |    _\\_   |         |\
+                                        |     \\    |         | |      ___
+                                __    /     __     |         | |    _/   \
+                                /__\  |_____/__\____|_________|__\  /__\___\
+```
+
 Avalon is a TypeScript application/library generator with a few opinionated defaults. Use Avalon to quickly scaffold projects that leverage the benefits of using [Docker](https://www.docker.com) as a development environment.
 
 Avalon leverages the practice of [executable containers](https://levelup.gitconnected.com/docker-for-development-service-containers-vs-executable-containers-9fb831775133) to avoid having to configure different node.js versions in your machine.
@@ -19,82 +44,64 @@ It's as simple as cloning this repository and adding two things to your shell pr
 # Needed for avalon to work
 export AVALON_PATH="<<path-to-the-cloned-directory>>"
 
-# Creates a global alias so you can execute avalon everywhere (Optional)
+# Creates a global alias so you can execute avalon everywhere (Recommended)
 alias avalon="./<<path-to-the-cloned-directory>>/run.sh"
 ```
 
 After making the changes of the installation step applicable, you can now use Avalon in a new terminal window.
 
-## Usage
+## Use the Avalon command line
+
+### avalon
+
+To list available commands, either run `avalon` with no parameters or execute `avalon help`:
+
+```
+$ avalon
+
+⚔️  A TypeScript application/library generator with opinionated defaults.
+
+🏳  Options:
+    --artifact=string      Sets the software artifact type ("library"|"application").
+    --ci-cd=string            Sets the continous integration configuration ("barebones"|"github-actions").
+
+📚 Commands:
+    new      Create a new Avalon artfiact.
+    help     Display this help message.
+
+Run 'avalon COMMAND help' for more information on a command.
+```
+
+### avalon new
+
+#### Description
+
+Use `avalon new` to create new software artifacts (libraries and applications).
+
+#### Options
+
+| Command      | Default            | Description                                  | Valid Values                      |
+| :----------- | :----------------- | :------------------------------------------- | :-------------------------------- |
+| `help`       |                    | Displays the help message                    |                                   |
+| `--artifact` | `"library"`        | Sets the software artifact type              | `"library"`, `"application"`      |
+| `--ci-cd`    | `"github-actions"` | Sets the continous integration configuration | `"barebones"`, `"github-actions"` |
+
+## Recipes
 
 ### Creating a New Barebones Library
 
-A _barebones_ library is a [🌐 TypeScript](https://www.npmjs.com/package/typescript) library without anykind of Continous Integration (CI) configuration. This is ideal for projects where you do not need the overhead of having a CI step or you wish to setup our own CI step.
+Use this recipe to create a [🌐 TypeScript](https://www.npmjs.com/package/typescript) library without anykind of Continous Integration (CI) or Continous Delivery (CD) configuration. This is ideal for projects where you do not need the overhead of having a CI/CD steps or you wish to setup our own CI/CD steps.
 
 ```shell
-avalon new <<library-name>> --artifact=library --ci=barebones
+avalon new ARTIFACT_NAME --artifact=library --ci-cd="barebones"
 ```
 
-#### Scripts
+### Creating a New Library integrated with GitHub Actions
 
-After creating our project, you will find several commands inside an `scripts` directory:
+Use this recipe to create a [🌐 TypeScript](https://www.npmjs.com/package/typescript) library with a Continous Integration (CI) and Continous Delivery (CD) steps using [GitHub actions](https://github.com/features/actions). This is ideal for projects where you wish a more solid project foundation with GitHub.
 
-#### Installation
-
-Installs the library dependencies (AKA your node_modules):
+By default, the CI step is triggered by every push and the CD step is triggered by created new [GitHub releases](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
 
 ```shell
-./scripts/install.sh
-```
-
-#### Development
-
-Compiles your source code using the [🌐 TypeScript compiler](https://www.npmjs.com/package/typescript) and re-compiles on changes:
-
-```shell
-./scripts/start-development.sh
-```
-
-#### Tests
-
-Starts the test runner (💡 You can use a custom test file path):
-
-```shell
-./scripts/test.sh
-```
-
-```shell
-./scripts/test.sh tests/some-test.spec.ts
-```
-
-#### Watch Tests
-
-Starts the test runner and watches for changes:
-
-```shell
-./scripts/watch-tests.sh
-```
-
-#### Formatting
-
-Formats your source code using [🌐 Prettier](https://prettier.io)
-
-```shell
-./scripts/format.sh
-```
-
-#### Building
-
-Compiles your source code using the [🌐 TypeScript compiler](https://www.npmjs.com/package/typescript):
-
-```shell
-./scripts/build.sh
-```
-
-#### Deploying to NPM
-
-Prompts your [🌐 npm](https://www.npmjs.com) credentials to publish your package:
-
-```shell
-./scripts/deploy.sh
+avalon new ARTIFACT_NAME --artifact=library --ci-cd="github-actions"
 ```

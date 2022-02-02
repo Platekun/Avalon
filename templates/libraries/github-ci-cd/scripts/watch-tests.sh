@@ -3,7 +3,7 @@
 GREEN="\e[32m"
 ENDCOLOR="\e[0m"
 
-echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}🔎 Running tests...${ENDCOLOR}")
+echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}🧑‍⚖️ Running tests...${ENDCOLOR}")
 
 # ███████╗███████╗████████╗██╗   ██╗██████╗ 
 # ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗
@@ -13,12 +13,11 @@ echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}�
 # ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝
 
 projectName="{{projectName}}"
-imageName="${projectName}-test-image"
-dockerFilePath="./docker/test.Dockerfile"
-containerName="${projectName}-test-container"
+testImageName="${projectName}-test-image"
+testDockerFilePath="./docker/watch-tests.Dockerfile"
+testContainerName="${projectName}-test-container"
 sourceCodePath="$(pwd)/library"
 sourceCodePathWorkdir="/${projectName}"
-targetFileGlob=$1
 
 # Node modules volume.
 nodeModulesVolumeName="${projectName}-node_modules"
@@ -31,25 +30,25 @@ nodeModulesContainerPath="/node_modules"
 # ███████╗██╔╝ ██╗███████╗╚██████╗╚██████╔╝   ██║   ██║╚██████╔╝██║ ╚████║
 # ╚══════╝╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═════╝    ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
 
-# Pre-execution.
-docker container rm "${containerName}" &> /dev/null
-docker image rm "${imageName}" &> /dev/null
+# Pre-execution cleanup.
+docker container rm "${testContainerName}" &> /dev/null
+docker image rm "${testImageName}" &> /dev/null
 
-# Create an image to run a "execute test runner" command.
+# Create an image to run a "start development mode" command.
 docker image build \
-  --file "${dockerFilePath}" \
-  --tag "${imageName}" \
+  --file "${testDockerFilePath}" \
+  --tag "${testImageName}" \
   .
 
-# Run the "Execute test runner" command container.
+# Create an image to run a "run tests" command.
 docker container run \
   --rm \
+  --interactive \
   --tty \
   -v "${nodeModulesVolumeName}":"${nodeModulesContainerPath}" \
   -v "${sourceCodePath}":"${sourceCodePathWorkdir}" \
-  --name "${containerName}" \
-  "${imageName}" \
-  ${targetFileGlob}
+  --name "${testContainerName}" \
+  "${testImageName}"
 
-# Post-execution cleanup.
-docker image rm "${imageName}" &> /dev/null
+# Post-execution cleanup
+docker image rm "${testImageName}" &> /dev/null
