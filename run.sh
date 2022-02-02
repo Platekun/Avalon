@@ -272,6 +272,10 @@ createNewArtifact() {
     fi
 }
 
+handleDevelopCommand() {
+    bash ./scripts/start-development.sh;
+}
+
 execute() {
     topLevelCommand=$1;
 
@@ -283,6 +287,7 @@ execute() {
     case ${topLevelCommand} in
         help) displayTopLevelHelpMessage;;
         new) createNewArtifact $@;;
+        develop) handleDevelopCommand;;
         *) handleUnknownCommand;;
     esac
 }
