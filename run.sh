@@ -276,6 +276,14 @@ handleDevelopCommand() {
     bash ./scripts/start-development.sh;
 }
 
+handleTestCommand() {
+    bash ./scripts/test.sh $1;
+}
+
+handleWatchTestsCommand() {
+    bash ./scripts/watch-tests.sh;
+}
+
 execute() {
     topLevelCommand=$1;
 
@@ -288,6 +296,8 @@ execute() {
         help) displayTopLevelHelpMessage;;
         new) createNewArtifact $@;;
         develop) handleDevelopCommand;;
+        test) handleTestCommand $2;;
+        watch-tests) handleWatchTestsCommand;;
         *) handleUnknownCommand;;
     esac
 }

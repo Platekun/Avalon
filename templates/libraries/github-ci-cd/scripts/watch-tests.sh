@@ -19,6 +19,10 @@ testContainerName="${projectName}-test-container"
 sourceCodePath="$(pwd)/library"
 sourceCodePathWorkdir="/${projectName}"
 
+# Git volume.
+gitVolumePath="$(pwd)/.git"
+gitContainerPath="/${projectName}/.git"
+
 # Node modules volume.
 nodeModulesVolumeName="${projectName}-node_modules"
 nodeModulesContainerPath="/node_modules"
@@ -47,6 +51,7 @@ docker container run \
   --tty \
   -v "${nodeModulesVolumeName}":"${nodeModulesContainerPath}" \
   -v "${sourceCodePath}":"${sourceCodePathWorkdir}" \
+  -v "${gitVolumePath}":"${gitContainerPath}" \
   --name "${testContainerName}" \
   "${testImageName}"
 
