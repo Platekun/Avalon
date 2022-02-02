@@ -42,6 +42,7 @@ docker image build \
 # Run the "install project" command container.
 docker container run \
   --rm \
+  --tty \
   -v "${nodeModulesVolumeName}":"${nodeModulesContainerPath}" \
   --name "${containerName}" \
   "${imageName}"

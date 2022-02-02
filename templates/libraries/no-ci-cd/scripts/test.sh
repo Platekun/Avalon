@@ -16,8 +16,6 @@ projectName="{{projectName}}"
 imageName="${projectName}-test-image"
 dockerFilePath="./docker/test.Dockerfile"
 containerName="${projectName}-test-container"
-sourceCodePath="$(pwd)/library"
-sourceCodePathWorkdir="/${projectName}"
 targetFileGlob=$1
 
 # Node modules volume.
@@ -46,7 +44,6 @@ docker container run \
   --rm \
   --tty \
   -v "${nodeModulesVolumeName}":"${nodeModulesContainerPath}" \
-  -v "${sourceCodePath}":"${sourceCodePathWorkdir}" \
   --name "${containerName}" \
   "${imageName}" \
   ${targetFileGlob}
