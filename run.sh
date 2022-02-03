@@ -15,15 +15,55 @@ GITHUB_CI_CD="github-ci-cd";
 NO_CI_CD="no-ci-cd";
 
 # License
-currentYear=(date +"%Y");
-authorName=$(whoami);
+CURRENT_YEAR=$(date +"%Y");
+AUTHOR_NAME=$(whoami);
 
 handleInstallCommand() {
-    bash ./scripts/install.sh;
+    if [[ $# == 1 ]]
+    then
+        bash ./scripts/install.sh;
+    else
+        command=$2;
+
+        case ${command} in
+            help) 
+                echo "Usage:  avalon install";
+                echo "";
+                echo "🛠  Install your project dependencies.";
+                echo "";
+                echo "📚 Commands:";
+                echo "    help      Display this help message.";
+                echo "";
+                echo "Run 'avalon install COMMAND help' for more information on a command.";
+
+                exit 0;;
+            *) handleUnknownCommand;;
+        esac
+    fi
 }
 
 handleDevelopCommand() {
-    bash ./scripts/start-development.sh;
+    if [[ $# == 1 ]]
+    then
+        bash ./scripts/start-development.sh;
+    else
+        command=$2;
+
+        case ${command} in
+            help) 
+            echo "Usage:  avalon develop";
+            echo "";
+            echo "🔥 Spin up a development environment.";
+            echo "";
+            echo "📚 Commands:";
+            echo "    help      Display this help message.";
+            echo "";
+            echo "Run 'avalon develop COMMAND help' for more information on a command.";
+
+            exit 0;;
+            *) handleUnknownCommand;;
+        esac
+    fi
 }
 
 handleTestCommand() {
@@ -31,47 +71,114 @@ handleTestCommand() {
 }
 
 handleWatchTestsCommand() {
-    bash ./scripts/watch-tests.sh;
+    if [[ $# == 1 ]]
+    then
+        bash ./scripts/watch-tests.sh;
+    else
+        command=$2;
+
+        case ${command} in
+            help) handleTestCommand "help";;
+            *) handleUnknownCommand;;
+        esac
+    fi
 }
 
 handleFormatCommand() {
-    bash ./scripts/format.sh;
+    if [[ $# == 1 ]]
+    then
+        bash ./scripts/format.sh;
+    else
+        command=$2;
+
+        case ${command} in
+            help) 
+                echo "Usage:  avalon format";
+                echo "";
+                echo "💅 Format your source code."
+                echo "";
+                echo "📚 Commands:";
+                echo "    help      Display this help message.";
+                echo "";
+                echo "Run 'avalon format COMMAND help' for more information on a command.";
+
+                exit 0;;
+            *) handleUnknownCommand;;
+        esac
+    fi
 }
 
 handleBuildCommand() {
-    bash ./scripts/build.sh;
+    if [[ $# == 1 ]]
+    then
+        bash ./scripts/build.sh;
+    else
+        command=$2;
+
+        case ${command} in
+            help) 
+                echo "Usage:  avalon build";
+                echo "";
+                echo "🧙‍♂️ Compile your source code."
+                echo "";
+                echo "📚 Commands:";
+                echo "    help      Display this help message.";
+                echo "";
+                echo "Run 'avalon build COMMAND help' for more information on a command.";
+
+                exit 0;;
+            *) handleUnknownCommand;;
+        esac
+    fi
 }
 
 handleReleaseCommand() {
     isABareBonesLibrary=$(grep -e "\"ci-cd\": \"barebones\"" ".avaloncli.json");
-    
+
     if [[ -n ${isABareBonesLibrary} ]]
     then
-        bash ./scripts/release.sh;
+        if [[ $# == 1 ]]
+        then
+            bash ./scripts/release.sh;
+        else
+            command=$2;
+
+            case ${command} in
+                help) 
+                    echo "Usage:  avalon release";
+                    echo "";
+                    echo "📦 Release your software to the world."
+                    echo "";
+                    echo "📚 Commands:";
+                    echo "    help      Display this help message.";
+                    echo "";
+                    echo "Run 'avalon release COMMAND help' for more information on a command.";
+
+                    exit 0;;
+                *) handleUnknownCommand;;
+            esac
+        fi
     else
         echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Command not supported for this type of artifact. The ${BLUE}'avalon release'${ENDCOLOR} ${RED}command is only available for Avalon barebones libraries.${ENDCOLOR}");
         exit 2;
     fi
 }
 
-handleUnknownNewCommand() {
-    echo "${option} is not an Avalon command.";
-    echo "See 'avalon new help'";
-    exit 1;
-}
-
-displayTopLevelHelpMessage() {
+handleHelpCommand() {
     echo "Usage: avalon COMMAND";
     echo ""
     echo "⚔️  A TypeScript application/library generator with opinionated defaults."
     echo ""
-    echo "🏳  Options:";
-    echo "    --artifact=string      Sets the software artifact type (\"library\"|\"application\").";
-    echo "    --ci-cd=string            Sets the continous integration configuration (\"barebones\"|\"github-actions\").";
-    echo ""
     echo "📚 Commands:";
-    echo "    new      Create a new Avalon artfiact.";
-    echo "    help     Display this help message.";
+    echo "    install       Install your project dependencies."
+    echo "    develop       Spin up a development environment."
+    echo "    test          Execute the test runner."
+    echo "    watch-tests   Execute the test runner and watch for changes."
+    echo "    format        Format your source code."
+    echo "    build         Compile your source code."
+    echo "    release       Release your software to the world."
+    echo "    new           Create a new Avalon artifact.";
+    echo "    help          Display this help message.";
     echo ""
     echo "Run 'avalon COMMAND help' for more information on a command.";
 
@@ -125,8 +232,8 @@ createLibrary() {
     # Create an image to run a "create library" command.
     docker image build \
         --build-arg PROJECT_NAME=${artifactName} \
-        --build-arg YEAR=2021 \
-        --build-arg AUTHOR_NAME=${authorName} \
+        --build-arg YEAR=${CURRENT_YEAR} \
+        --build-arg AUTHOR_NAME=${AUTHOR_NAME} \
         --file ${dockerfilePath} \
         --tag "${imageName}" \
         ${AVALON_PATH} || \
@@ -169,7 +276,7 @@ createLibrary() {
     cd ..;
 }
 
-createLibraryWithNoCi() {
+createLibraryWithNoCiCd() {
     createLibrary $1 $2;
 
     successMessage="ℹ️  Inside that directory, you can run several commands from the ${BLUE}scripts${ENDCOLOR} directory:
@@ -239,24 +346,7 @@ createLibraryWithGitHubCiCd() {
     exit 0;
 }
 
-displayCreateNewArtifactHelpMessage() {
-    echo "Usage:  avalon new create ARTIFACT_NAME [OPTIONS] [COMMAND]";
-    echo ""
-    echo "🏗  Create software artifacts."
-    echo ""
-    echo "🏳  Options:";
-    echo "    --artifact=string      Sets the software artifact type (\"library\"|\"application\").";
-    echo "    --ci-cd=string            Sets the continous integration configuration (\"barebones\"|\"github-actions\").";
-    echo ""
-    echo "📚 Commands:";
-    echo "    help      Display this help message.";
-    echo ""
-    echo "Run 'avalon new COMMAND help' for more information on a command.";
-
-    exit 0;
-}
-
-createNewArtifact() {
+handleNewCommand() {
     artifactName=$2;
 
     # Defaults.
@@ -266,11 +356,29 @@ createNewArtifact() {
     for option in "$@"
     do
         case ${option} in
-            help) displayCreateNewArtifactHelpMessage;;
+            help)
+                echo "Usage:  avalon new create ARTIFACT_NAME [OPTIONS] [COMMAND]";
+                echo ""
+                echo "🏗  Create software artifacts."
+                echo ""
+                echo "🏳  Options:";
+                echo "    --artifact=string      Sets the software artifact type (\"library\"|\"application\").";
+                echo "    --ci-cd=string            Sets the continous integration configuration (\"barebones\"|\"github-actions\").";
+                echo ""
+                echo "📚 Commands:";
+                echo "    help      Display this help message.";
+                echo ""
+                echo "Run 'avalon new COMMAND help' for more information on a command.";
+
+                exit 0;;
             "--artifact=library") artifactType=${LIBRARY_ARTIFACT_TYPE};;
             "--ci-cd=barebones") cicd=${NO_CI_CD};;
             "--ci-cd=github-actions") cicd=${GITHUB_CI_CD};;
-            "--"*) handleUnknownNewCommand;;
+            "--"*)
+                echo "${option} is not an Avalon command.";
+                echo "See 'avalon new help'";
+
+                exit 1;;
         esac
     done
 
@@ -281,7 +389,7 @@ createNewArtifact() {
     then
         if [ ${cicd} == ${NO_CI_CD} ]
         then
-            createLibraryWithNoCi ${artifactName} ${cicd};
+            createLibraryWithNoCiCd ${artifactName} ${cicd};
         elif [ ${cicd} == ${GITHUB_CI_CD} ]
         then
             createLibraryWithGitHubCiCd ${artifactName} ${cicd};
@@ -294,26 +402,26 @@ handleUnknownCommand() {
     exit 2;
 }
 
-execute() {
-    topLevelCommand=$1;
-
+bootstrap() {
     if [[ $# == 0 ]]
     then
-        displayTopLevelHelpMessage;
+        handleHelpCommand;
     fi
 
-    case ${topLevelCommand} in
-        install) handleInstallCommand;;
-        develop) handleDevelopCommand;;
+    command=$1;
+
+    case ${command} in
+        install) handleInstallCommand $@;;
+        develop) handleDevelopCommand $@;;
         test) handleTestCommand $2;;
-        watch-tests) handleWatchTestsCommand;;
-        format) handleFormatCommand;;
-        build) handleBuildCommand;;
-        release) handleReleaseCommand;;
-        help) displayTopLevelHelpMessage;;
-        new) createNewArtifact $@;;
+        watch-tests) handleWatchTestsCommand $@;;
+        format) handleFormatCommand $@;;
+        build) handleBuildCommand $@;;
+        release) handleReleaseCommand $@;;
+        help) handleHelpCommand $@;;
+        new) handleNewCommand $@;;
         *) handleUnknownCommand;;
     esac
 }
 
-execute $@;
+bootstrap $@;

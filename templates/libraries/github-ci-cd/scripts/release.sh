@@ -13,7 +13,7 @@ then
   exit 1;
 fi
 
-echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}🌎 Preparing to release...${ENDCOLOR}")
+echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}📦 Preparing to release...${ENDCOLOR}")
 
 # ███████╗███████╗████████╗██╗   ██╗██████╗ 
 # ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗

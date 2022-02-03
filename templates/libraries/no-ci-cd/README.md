@@ -1,28 +1,28 @@
 # Getting Started with Avalon
 
 ```
-                                                            ~
-                                        ~                '
-                                          `        (O)       ~
-                                                    H      '
-                                    ~               H
-                                      `        ____hHh____
-                                        ~      `---------'    ~
-                                          `       | | |     '
-                                                  | | |
-                                                  | | |
-                                                  | | |
-                                                  | | |
-                                                  | | |
-                                                  | | |
-                                                  | | |
-                                            _____;~~~~~:____
-                                          __'                \
-                                        /         \          |
-                                        |    _\\_   |         |\
-                                        |     \\    |         | |      ___
-                                __    /     __     |         | |    _/   \
-                                /__\  |_____/__\____|_________|__\  /__\___\
+                                                        ~
+                                    ~                '
+                                      `        (O)       ~
+                                                H      '
+                                ~               H
+                                  `        ____hHh____
+                                    ~      `---------'    ~
+                                      `       | | |     '
+                                              | | |
+                                              | | |
+                                              | | |
+                                              | | |
+                                              | | |
+                                              | | |
+                                              | | |
+                                        _____;~~~~~:____
+                                      __'                \
+                                    /         \          |
+                                    |    _\\_   |         |\
+                                    |     \\    |         | |      ___
+                            __    /     __     |         | |    _/   \
+                            /__\  |_____/__\____|_________|__\  /__\___\
 ```
 
 This project was bootstrapped with Avalon.
@@ -34,7 +34,7 @@ root
 ├── README.md...........................................................README of your project.
 ├── docker..............................................................Dockerfiles to execute commands (Use them via scripts).
 │   ├── build.Dockerfile................................................Dockerfile used to execute to compile the project using TypeScript.
-│   ├── release.Dockerfile...............................................Dockerfile used to execute to release to npm.
+│   ├── release.Dockerfile..............................................Dockerfile used to execute to release to npm.
 │   ├── format.Dockerfile...............................................Dockerfile used run prettier.
 │   ├── install.Dockerfile..............................................Dockerfile used to install the node_modules of the project.
 │   ├── start-development.Dockerfile....................................Dockerfile used to compile to compile the project using TypeScript and watch for changes.
@@ -53,9 +53,9 @@ root
 │   └── tsconfig.production.json........................................TypeScript compiler configuration for releasement.
 ├── .gitignore
 ├── .dockerignore.......................................................Filters out unnecesary files from your containers (Internal).
-└── scripts.............................................................Bash scripts used to interact with the codebase. It uses the docker directory files udner the hood.
+└── scripts.............................................................Bash scripts used to interact with the codebase. It uses the docker directory files under the hood.
     ├── build.sh........................................................Script to build the project.
-    ├── release.sh.......................................................Script to release the project.
+    ├── release.sh......................................................Script to release the project.
     ├── format.sh.......................................................Script to format the project.
     ├── install.sh......................................................Script to install the project.
     ├── start-development.sh............................................Script to start development.
@@ -74,7 +74,13 @@ After creating our project, you will find several commands inside an `scripts` d
 Installs the library dependencies (AKA your node_modules):
 
 ```shell
-./scripts/install.sh
+bash ./scripts/install.sh
+```
+
+alternatively you can run the script using the Avalon CLI:
+
+```shell
+avalon install
 ```
 
 ### Development
@@ -82,37 +88,65 @@ Installs the library dependencies (AKA your node_modules):
 Compiles your source code using the [🧙‍♂️ TypeScript compiler](https://www.npmjs.com/package/typescript) and re-compiles on changes:
 
 ```shell
-./scripts/start-development.sh
+bash ./scripts/start-development.sh
+```
+
+alternatively you can run the script using the Avalon CLI:
+
+```shell
+avalon develop
 ```
 
 ### Tests
 
-Starts the [🃏 Jest](https://jestjs.io) test runner:
+Executes the [🃏 Jest](https://jestjs.io) test runner:
 
 ```shell
-./scripts/test.sh
+bash ./scripts/test.sh
+```
+
+alternatively you can run the script using the Avalon CLI:
+
+```shell
+avalon test
+```
+
+**Note**: 💡 You can use a custom test file path as well:
+
+```shell
+bash ./scripts/test.sh tests/some-test.spec.ts
 ```
 
 ```shell
-./scripts/test.sh tests/some-test.spec.ts
+avalon test tests/some-test.spec.ts
 ```
-
-**Note**: 💡 You can use a custom test file path.
 
 ### Watch Tests
 
-Starts the [🃏 Jest](https://jestjs.io) test runner and watches for changes:
+Executes the [🃏 Jest](https://jestjs.io) test runner and watches for changes:
 
 ```shell
-./scripts/watch-tests.sh
+bash ./scripts/watch-tests
+```
+
+alternatively you can run the script using the Avalon CLI:
+
+```shell
+avalon watch-tests
 ```
 
 ### Formatting
 
-Formats your source code using [💅 Prettier](https://prettier.io)
+Formats your source code using [💅 Prettier](https://prettier.io):
 
 ```shell
-./scripts/format.sh
+bash ./scripts/format.sh
+```
+
+alternatively you can run the script using the Avalon CLI:
+
+```shell
+avalon format
 ```
 
 ### Building
@@ -120,7 +154,13 @@ Formats your source code using [💅 Prettier](https://prettier.io)
 Compiles your source code using the [🧙‍♂️ TypeScript compiler](https://www.npmjs.com/package/typescript):
 
 ```shell
-./scripts/build.sh
+bash ./scripts/build.sh
+```
+
+alternatively you can run the script using the Avalon CLI:
+
+```shell
+avalon build
 ```
 
 ### Publishing to NPM
@@ -128,9 +168,16 @@ Compiles your source code using the [🧙‍♂️ TypeScript compiler](https://
 Prompts your [📦 npm](https://www.npmjs.com) credentials to publish your package:
 
 ```shell
-./scripts/release.sh
+bash ./scripts/release.sh
+```
+
+alternatively you can run the script using the Avalon CLI:
+
+```shell
+avalon release
 ```
 
 ## Read More
 
+- [Avalon](https://github.com/Platekun/Avalon).
 - [Docker for Development: Service Containers vs Executable Containers](https://levelup.gitconnected.com/docker-for-development-service-containers-vs-executable-containers-9fb831775133).

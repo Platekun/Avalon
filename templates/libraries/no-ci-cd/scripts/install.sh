@@ -3,7 +3,7 @@
 GREEN="\e[32m"
 ENDCOLOR="\e[0m"
 
-echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}🛠  Installing project...${ENDCOLOR}")
+echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}🧰 Installing project...${ENDCOLOR}")
 
 # ███████╗███████╗████████╗██╗   ██╗██████╗ 
 # ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗
@@ -12,7 +12,7 @@ echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}�
 # ███████║███████╗   ██║   ╚██████╔╝██║     
 # ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝
 
-projectName="{{projectName}}"
+projectName="{{projectName}}"v
 imageName="${projectName}-installation-image"
 dockerFilePath="./docker/install.Dockerfile"
 containerName="${projectName}-installation-container"

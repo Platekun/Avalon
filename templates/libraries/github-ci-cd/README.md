@@ -1,28 +1,28 @@
 # Getting Started with Avalon
 
 ```
-                                                            ~
-                                        ~                '
-                                          `        (O)       ~
-                                                    H      '
-                                    ~               H
-                                      `        ____hHh____
-                                        ~      `---------'    ~
-                                          `       | | |     '
-                                                  | | |
-                                                  | | |
-                                                  | | |
-                                                  | | |
-                                                  | | |
-                                                  | | |
-                                                  | | |
-                                            _____;~~~~~:____
-                                          __'                \
-                                        /         \          |
-                                        |    _\\_   |         |\
-                                        |     \\    |         | |      ___
-                                __    /     __     |         | |    _/   \
-                                /__\  |_____/__\____|_________|__\  /__\___\
+                                                        ~
+                                    ~                '
+                                      `        (O)       ~
+                                                H      '
+                                ~               H
+                                  `        ____hHh____
+                                    ~      `---------'    ~
+                                      `       | | |     '
+                                              | | |
+                                              | | |
+                                              | | |
+                                              | | |
+                                              | | |
+                                              | | |
+                                              | | |
+                                        _____;~~~~~:____
+                                      __'                \
+                                    /         \          |
+                                    |    _\\_   |         |\
+                                    |     \\    |         | |      ___
+                            __    /     __     |         | |    _/   \
+                            /__\  |_____/__\____|_________|__\  /__\___\
 ```
 
 This project was bootstrapped with Avalon.
@@ -54,7 +54,7 @@ root
 │   └── tsconfig.production.json........................................TypeScript compiler configuration for release.
 ├── .gitignore
 ├── .dockerignore.......................................................Filters out unnecesary files from your containers (Internal).
-└── scripts.............................................................Bash scripts used to interact with the codebase. It uses the docker directory files udner the hood.
+└── scripts.............................................................Bash scripts used to interact with the codebase. It uses the docker directory files under the hood.
     ├── build.sh........................................................Script to build the project.
     ├── ci.sh...........................................................Script to build and test the project during the CI step.
     ├── format.sh.......................................................Script to format the project.
@@ -65,18 +65,18 @@ root
     └── watch-tests.sh..................................................Script to watch tests.
 ```
 
-## Scripts
-
-In the project directory, you can run:
-
-After creating our project, you will find several commands inside an `scripts` directory:
-
 ### Installation
 
 Installs the library dependencies (AKA your node_modules):
 
 ```shell
-./scripts/install.sh
+bash ./scripts/install.sh
+```
+
+alternatively you can run the script using the Avalon CLI:
+
+```shell
+avalon install
 ```
 
 ### Development
@@ -84,37 +84,65 @@ Installs the library dependencies (AKA your node_modules):
 Compiles your source code using the [🧙‍♂️ TypeScript compiler](https://www.npmjs.com/package/typescript) and re-compiles on changes:
 
 ```shell
-./scripts/start-development.sh
+bash ./scripts/start-development.sh
+```
+
+alternatively you can run the script using the Avalon CLI:
+
+```shell
+avalon develop
 ```
 
 ### Tests
 
-Starts the [🃏 Jest](https://jestjs.io) test runner:
+Executes the [🃏 Jest](https://jestjs.io) test runner:
 
 ```shell
-./scripts/test.sh
+bash ./scripts/test.sh
+```
+
+alternatively you can run the script using the Avalon CLI:
+
+```shell
+avalon test
+```
+
+**Note**: 💡 You can use a custom test file path as well:
+
+```shell
+bash ./scripts/test.sh tests/some-test.spec.ts
 ```
 
 ```shell
-./scripts/test.sh tests/some-test.spec.ts
+avalon test tests/some-test.spec.ts
 ```
-
-**Note**: 💡 You can use a custom test file path.
 
 ### Watch Tests
 
-Starts the [🃏 Jest](https://jestjs.io) test runner and watches for changes:
+Executes the [🃏 Jest](https://jestjs.io) test runner and watches for changes:
 
 ```shell
-./scripts/watch-tests.sh
+bash ./scripts/watch-tests
+```
+
+alternatively you can run the script using the Avalon CLI:
+
+```shell
+avalon watch-tests
 ```
 
 ### Formatting
 
-Formats your source code using [💅 Prettier](https://prettier.io)
+Formats your source code using [💅 Prettier](https://prettier.io):
 
 ```shell
-./scripts/format.sh
+bash ./scripts/format.sh
+```
+
+alternatively you can run the script using the Avalon CLI:
+
+```shell
+avalon format
 ```
 
 ### Building
@@ -122,10 +150,16 @@ Formats your source code using [💅 Prettier](https://prettier.io)
 Compiles your source code using the [🧙‍♂️ TypeScript compiler](https://www.npmjs.com/package/typescript):
 
 ```shell
-./scripts/build.sh
+bash ./scripts/build.sh
 ```
 
-**Note**: The scripts for CI (`ci.sh`) and Release(`release.sh`) are meant to be used via GitHub actions.
+alternatively you can run the script using the Avalon CLI:
+
+```shell
+avalon build
+```
+
+**Note**: 💡 The scripts for CI (`ci.sh`) and Release(`release.sh`) are meant to be used via GitHub actions.
 
 ## CI/CD
 
@@ -148,8 +182,13 @@ To perform the CI step in your project, you only need to push code to the reposi
 #### How It Works
 
 1. Changes are pushed to the GitHub repository.
-2. The _CI_ GitHub action (`.github/workflows/ci.yml`) is triggered.
-3. The _CI_ GitHub action builds and tests the project using a `build` step.
+2. The _CI_ GitHub action (`.github/workflows/ci.yml`).
+3. The _CI_ GitHub actions executes a `build` step.
+4. The `build` step executes the `scripts/ci.sh` script which builds a Docker image using the `docker/ci.Dockerfile` Dockerfile.
+5. When building the Docker image, the project is copied and built inside the Docker image.
+6. After building the Docker image, the `scripts/ci.sh` script creates a new Docker container using that image.
+7. The new Docker container executes the test runner.
+8. The test runner finishes running the tests and results are delivered to us via the GitHub UI.
 
 ### Continous Delivery
 
@@ -170,13 +209,26 @@ The _CD_ GitHub action needs to be provided with an `NPM_AUTH_TOKEN` to perform 
 
 #### How It Works
 
-1. A new GitHub release is created.
-2. The _CD_ GitHub action (`.github/workflows/cd.yml`) is triggered.
-3. The _CD_ GitHub action builds and tests the project using a `build` step.
-4. The _CD_ GitHub action moves to a `release` step where it builds and releases the project.
+- build:
+
+  1. A new GitHub release is created.
+  2. The _CD_ GitHub action (`.github/workflows/cd.yml`) is triggered.
+  3. The `build` step executes the `scripts/ci.sh` script which builds a Docker image using the `docker/ci.Dockerfile` Dockerfile.
+  4. When building the Docker image, the project is built inside the Docker image.
+  5. After building the Docker image, the `scripts/ci.sh` script creates a new Docker container using that image.
+  6. The new Docker container executes the test runner.
+  7. The test runner finishes running the tests and moves to the `release` step.
+
+- release:
+  1. The `release` step executes the `scripts/release.sh` script (passing the `NPM_AUTH_TOKEN`).
+  2. When building the Docker image, the source code is copied inside the Docker image.
+  3. After building the Docker image, the `scripts/release.sh` script creates a new Docker container using that image.
+  4. The new Docker container executes the instructions needed to publish the artifact to the npm registry.
+  5. The new Docker container finishes publishing the artifact and returns some results to us via the GitHub UI.
 
 ## Read More
 
+- [Avalon](https://github.com/Platekun/Avalon).
 - [Docker for Development: Service Containers vs Executable Containers](https://levelup.gitconnected.com/docker-for-development-service-containers-vs-executable-containers-9fb831775133).
 - [Integrating npm with external services](https://docs.npmjs.com/integrations/integrating-npm-with-external-services).
 - [Managing releases in a repository](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
