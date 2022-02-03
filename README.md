@@ -80,11 +80,16 @@ Use `avalon new` to create new software artifacts (libraries and applications).
 
 #### Options
 
-| Command      | Default            | Description                                  | Valid Values                      |
+| Options      | Default            | Description                                  | Valid Values                      |
 | :----------- | :----------------- | :------------------------------------------- | :-------------------------------- |
-| `help`       |                    | Displays the help message                    |                                   |
 | `--artifact` | `"library"`        | Sets the software artifact type              | `"library"`, `"application"`      |
 | `--ci-cd`    | `"github-actions"` | Sets the continous integration configuration | `"barebones"`, `"github-actions"` |
+
+#### Commands
+
+| Options | Default | Description               | Valid Values |
+| :------ | :------ | :------------------------ | :----------- |
+| `help`  |         | Displays the help message |              |
 
 ## Recipes
 
