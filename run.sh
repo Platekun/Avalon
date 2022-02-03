@@ -18,6 +18,10 @@ NO_CI_CD="no-ci-cd";
 currentYear=(date +"%Y");
 authorName=$(whoami);
 
+handleInstallCommand() {
+    bash ./scripts/install.sh;
+}
+
 handleDevelopCommand() {
     bash ./scripts/start-development.sh;
 }
@@ -299,14 +303,15 @@ execute() {
     fi
 
     case ${topLevelCommand} in
-        help) displayTopLevelHelpMessage;;
-        new) createNewArtifact $@;;
+        install) handleInstallCommand;;
         develop) handleDevelopCommand;;
         test) handleTestCommand $2;;
         watch-tests) handleWatchTestsCommand;;
         format) handleFormatCommand;;
         build) handleBuildCommand;;
         release) handleReleaseCommand;;
+        help) displayTopLevelHelpMessage;;
+        new) createNewArtifact $@;;
         *) handleUnknownCommand;;
     esac
 }
