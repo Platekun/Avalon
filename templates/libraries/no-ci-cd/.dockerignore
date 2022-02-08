@@ -6,3 +6,4 @@ node_modules
 dist
 library/LICENSE
 library/README.md
+.avaloncli.json

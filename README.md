@@ -31,10 +31,44 @@ Avalon leverages the practice of [executable containers](https://levelup.gitconn
 
 ## Pre-requisites
 
-Before using Avalon we have to make sure we have isntalled the following on your machine:
+Before using Avalon we have to make sure we have installed the following software on your machine:
 
-- [🐳 Docker](https://docs.docker.com/get-docker/).
-- [🌳 Git](https://git-scm.com/downloads).
+- [🐳 Docker](https://docs.docker.com/get-docker/), in order to:
+  - Build images.
+  - Create containers.
+  - Start containers.
+  - Create volumes.
+  - Create bind mounts.
+- [🌳 Git](https://git-scm.com/downloads), in order to:
+  - Create repositories.
+  - Delete repositories.
+  - Create branches.
+- [🐙 GitHub CLI](https://cli.github.com), in order to :
+  - Create repositories.
+  - Delete repositories.
+  - View repositories.
+- [☁️ AWS CLI](https://aws.amazon.com/cli/), in order to:
+  - Create CloudFormation stacks.
+  - Delete CloudFormation stacks.
+  - Retrieve Secrets ARN(s).
+
+Avalon also needs to have the GitHub CLI and the AWS CLI configured with a valid set of credentials:
+
+- [🐙 GitHub CLI](https://cli.github.com): You can perform `gh auth login` or you can follow the [official manual](https://cli.github.com/manual/).
+- [☁️ AWS CLI](https://aws.amazon.com/cli/): You can follow [Stephane Maarek's tutorial](https://www.youtube.com/watch?v=Rp-A84oh4G8).
+
+💡 Avalon will perform the following operations on your behalf:
+
+## Defaults
+
+### Branches
+
+By default Avalon will create two branches by default:
+
+- `dev`: Refers to the environment is the branch that engineers write code in.
+- `main`: Refers to the environment is the branch that end users interact with. It is recommended only
+
+Both branches are identical when your artifact is freshly created.
 
 ## Installation
 
@@ -66,15 +100,29 @@ Use this recipe to create a [TypeScript](https://www.npmjs.com/package/typescrip
 avalon new ARTIFACT_NAME --artifact=library --ci-cd="barebones"
 ```
 
-### Creating a New Library integrated with GitHub Actions
+### Creating a New Library that leverages GitHub Actions for CI/CD
 
 Use this recipe to create a [TypeScript](https://www.npmjs.com/package/typescript) library with a Continous Integration (CI) and Continous Delivery (CD) steps using [GitHub actions](https://github.com/features/actions). This is ideal for projects where you wish a more solid project foundation with GitHub.
 
 By default, the CI step is triggered by every push and the CD step is triggered by creating new [GitHub releases](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
 
+💡 **Note**: As a recommendation, releases should be created using the `main` branch.
+
 ```shell
 avalon new ARTIFACT_NAME --artifact=library --ci-cd="github-actions"
 ```
+
+### Creating a New Library that leverages AWS (CodeBuild) for CI/CD
+
+Use this recipe to create a [TypeScript](https://www.npmjs.com/package/typescript) library with a Continous Integration (CI) and Continous Delivery (CD) steps using [AWS CodeBuild](https://aws.amazon.com/codebuild/). This is ideal for projects where you wish a more solid project foundation using Amazon's AWS ecosystem.
+
+By default, the CI step is triggered by every code change in the repository and the CD step is triggered by merging a pull request from the `dev` branch to the `main` branch.
+
+```shell
+avalon new ARTIFACT_NAME --artifact=library --ci-cd="aws"
+```
+
+💡 **Note**: You will need to do a setup before making use of the CI/CD pipeline provided by AWS. You can read more about the steps needed in the README of the generated project.
 
 ## Use the Avalon command line
 
@@ -92,6 +140,7 @@ $ avalon
     --ci-cd=string            Sets the continous integration configuration ("barebones"|"github-actions").
 
 📚 Commands:
+    destroy       Remove an avalon artifact form your machine.
     install       Install your project dependencies.
     develop       Spin up a development environment.
     test          Execute the test runner.
@@ -115,7 +164,19 @@ avalon install
 
 #### Description
 
-Use `avalon install` to install your software artifact dependencies. It makes use of your `package.json` and `package-lock.json`.
+Use `avalon install` to an avalon artifact form your machine. It makes use of your `package.json` and `package-lock.json`.
+
+### avalon destroy
+
+#### Usage
+
+```shell
+avalon destroy
+```
+
+#### Description
+
+Use `avalon install` to an avalon artifact form your machine. It makes sure to delete all directores, docker containers, docker volumes, github repositories and AWS infrastructure related to it.
 
 ### avalon develop
 
@@ -243,10 +304,10 @@ Use `avalon new` to create new software artifacts (libraries and applications).
 
 #### Options
 
-| Options      | Default            | Description                                  | Valid Values                      |
-| :----------- | :----------------- | :------------------------------------------- | :-------------------------------- |
-| `--artifact` | `"library"`        | Sets the software artifact type              | `"library"`, `"application"`      |
-| `--ci-cd`    | `"github-actions"` | Sets the continous integration configuration | `"barebones"`, `"github-actions"` |
+| Options      | Default            | Description                                                               | Valid Values                            |
+| :----------- | :----------------- | :------------------------------------------------------------------------ | :-------------------------------------- |
+| `--artifact` | `"library"`        | Sets the software artifact type                                           | `"library"`, `"application"`            |
+| `--ci-cd`    | `"github-actions"` | Sets the continous integration & continous delivery (CI/CD) configuration | `"barebones"`, `"github-actions", "aws` |
 
 #### Commands
 

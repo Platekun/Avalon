@@ -32,12 +32,15 @@ This project was bootstrapped with Avalon.
 ```
 root
 ├── README.md...........................................................README of your project.
+├── aws.................................................................AWS related files.
+│   ├── buildspec.cd.yml................................................Development CodeBuild project configuration file (CD Step).
+│   ├── buildspec.ci.yml................................................Production CodeBuild project configuration file (CI Step).
+│   ├── ci-cd.template.yml..............................................CloudFormation template used to provide the infrastructure of this artifact.
 ├── docker..............................................................Dockerfiles to execute commands (Use them via scripts).
 │   ├── build.Dockerfile................................................Dockerfile used to execute to compile the project using TypeScript.
-│   ├── ci.Dockerfile...................................................Dockerfile used for the CI step.
+│   ├── release.Dockerfile..............................................Dockerfile used to execute to release to npm.
 │   ├── format.Dockerfile...............................................Dockerfile used run prettier.
 │   ├── install.Dockerfile..............................................Dockerfile used to install the node_modules of the project.
-│   ├── release.Dockerfile..............................................Dockerfile used for the CD step.
 │   ├── start-development.Dockerfile....................................Dockerfile used to compile to compile the project using TypeScript and watch for changes.
 │   ├── test.Dockerfile.................................................Dockerfile used to execute the test runner.
 │   └── watch-tests.Dockerfile..........................................Dockerfile used to execute the test runner and watch for changes.
@@ -51,19 +54,24 @@ root
 │   ├── test............................................................Tests directory.
 │   │   └── index.test.ts
 │   ├── tsconfig.json...................................................TypeScript compiler configuration.
-│   └── tsconfig.production.json........................................TypeScript compiler configuration for release.
+│   └── tsconfig.production.json........................................TypeScript compiler configuration for releasement.
 ├── .gitignore
 ├── .dockerignore.......................................................Filters out unnecesary files from your containers (Internal).
 └── scripts.............................................................Bash scripts used to interact with the codebase. It uses the docker directory files under the hood.
     ├── build.sh........................................................Script to build the project.
-    ├── ci.sh...........................................................Script to build and test the project during the CI step.
+    ├── release.sh......................................................Script to release the project.
     ├── format.sh.......................................................Script to format the project.
     ├── install.sh......................................................Script to install the project.
-    ├── release.sh......................................................Script to release the project during the CD step.
     ├── start-development.sh............................................Script to start development.
     ├── test.sh.........................................................Script to tests.
     └── watch-tests.sh..................................................Script to watch tests.
 ```
+
+## Scripts
+
+In the project directory, you can run:
+
+After creating our project, you will find several commands inside an `scripts` directory:
 
 ### Installation
 
@@ -159,8 +167,6 @@ alternatively you can run the script using the Avalon CLI:
 avalon build
 ```
 
-**Note**: 💡 The scripts for CI (`ci.sh`) and Release(`release.sh`) are meant to be used via GitHub actions.
-
 ## CI/CD
 
 CI/CD is a modern software development practice in which incremental changes are made frequently and then the code is delivered quickly. It is a way to provide value to customers efficientlly by using automations to shorten the release cycles.
@@ -177,18 +183,20 @@ The build server will send the results to the responsible developer when they ar
 
 #### Usage
 
+Avalon sets up a development [CodeBuild](https://aws.amazon.com/codebuild/) project for this purpose. The name of the CodeBuild project is `<<artifact-name>>DevelopmentBuild`. where `<<artifact-name>>` is the name you passed when creating the artifact when using `avalon new`.
+
 To perform the CI step in your project, you only need to push code to the repository.
 
 #### How It Works
 
 1. Changes are pushed to the GitHub repository.
-2. The _CI_ GitHub action (`.github/workflows/ci.yml`).
-3. The _CI_ GitHub actions executes a `build` step.
-4. The `build` step executes the `scripts/ci.sh` script which builds a Docker image using the `docker/ci.Dockerfile` Dockerfile.
+2. The development CodeBuild project will trigger a new build. It makes use of the `buildspec.ci.yml` file.
+3. The `install` phase executes some commands needed to use Docker without problems.
+4. The `build` phase executes the `scripts/ci.sh` script which builds a Docker image using the `docker/ci.Dockerfile` Dockerfile.
 5. When building the Docker image, the project is copied and built inside the Docker image.
 6. After building the Docker image, the `scripts/ci.sh` script creates a new Docker container using that image.
 7. The new Docker container executes the test runner.
-8. The test runner finishes running the tests and results are delivered to us via the GitHub UI.
+8. The test runner finishes running the tests and results are delivered to us via the CodeBuild UI.
 
 ### Continous Delivery
 
@@ -198,38 +206,32 @@ Software releases are automated however the team can decide the frequency of the
 
 #### Usage
 
-To publish your project to npm, you only need to create a new [GitHub release](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
+Avalon sets up a development [CodeBuild](https://aws.amazon.com/codebuild/) project for this purpose. The name of the CodeBuild project is `<<artifact-name>>ProductionBuild`. where `<<artifact-name>>` is the name you passed when creating the artifact when using `avalon new`.
+
+To publish your project to npm, you only need to create and merge a pull request from the `dev` branch into your `main` branch.
 
 #### Pre-requisites
 
-The _CD_ GitHub action needs to be provided with an `NPM_AUTH_TOKEN` to perform actions in your behalf during the `release` step. Access tokens are an alternative to using username and passwords for authenticating in npm when using the CLI.
+The production [CodeBuild](https://aws.amazon.com/codebuild/) project builds need to be provided with an `NPM_AUTH_TOKEN` environmental variable to perform actions in your behalf during the `build` phase. Access tokens are an alternative to using username and passwords for authenticating in npm when using the CLI.
 
 1. [Create an npm auth. token](https://docs.npmjs.com/about-access-tokens) (The automation token type is recommended for this).
-2. [Store the the obtained auth. token your GitHub repository's secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets).
+2. [Store the the obtained auth. token in AWS Secrets manager](https://aws.amazon.com/secrets-manager/) as `AVALON_NPM_AUTH_TOKEN`.
 
 #### How It Works
 
-- build:
-
-  1. A new GitHub release is created.
-  2. The _CD_ GitHub action (`.github/workflows/cd.yml`) is triggered.
-  3. The `build` step executes the `scripts/ci.sh` script which builds a Docker image using the `docker/ci.Dockerfile` Dockerfile.
-  4. When building the Docker image, the project is built inside the Docker image.
-  5. After building the Docker image, the `scripts/ci.sh` script creates a new Docker container using that image.
-  6. The new Docker container executes the test runner.
-  7. The test runner finishes running the tests and moves to the `release` step.
-
-- release:
-  1. The `release` step executes the `scripts/release.sh` script (passing the `NPM_AUTH_TOKEN`) which builds a Docker image using the `docker/release.Dockerfile` Dockerfile.
-  2. When building the Docker image, the source code is copied inside the Docker image.
-  3. After building the Docker image, the `scripts/release.sh` script creates a new Docker container using that image.
-  4. The new Docker container executes the instructions needed to publish the artifact to the npm registry.
-  5. The new Docker container finishes publishing the artifact and returns some results to us via the GitHub UI.
+1. Changes are pushed to the GitHub repository.
+2. The development CodeBuild project will trigger a new build. It makes use of the `buildspec.cd.yml` file.
+3. The `install` phase executes some commands needed to use Docker without problems.
+4. The `build` phase executes the `scripts/release.sh` script (passing the `NPM_AUTH_TOKEN`) which builds a Docker image using the `docker/release.Dockerfile` Dockerfile.
+5. When building the Docker image, the project is copied and built inside the Docker image.
+6. After building the Docker image, the `scripts/release.sh` script creates a new Docker container using that image.
+7. The new Docker container executes the instructions needed to publish the artifact to the npm registry.
+8. The new Docker container finishes publishing the artifact and returns some results to us via the CodeBuild UI.
 
 ## Read More
 
 - [Avalon](https://github.com/Platekun/Avalon).
 - [Docker for Development: Service Containers vs Executable Containers](https://levelup.gitconnected.com/docker-for-development-service-containers-vs-executable-containers-9fb831775133).
 - [Integrating npm with external services](https://docs.npmjs.com/integrations/integrating-npm-with-external-services).
-- [Managing releases in a repository](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
-- [GitHub Actions Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets).
+- [AWS Secrets Manager](https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html).
+- [CodeBuild](https://aws.amazon.com/codebuild/).

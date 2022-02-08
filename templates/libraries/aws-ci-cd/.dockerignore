@@ -7,3 +7,5 @@ dist
 library/LICENSE
 library/README.md
 .avaloncli.json
+buildspec.ci.yml
+buildspec.cd.yml

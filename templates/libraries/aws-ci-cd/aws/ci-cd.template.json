@@ -1,0 +1,171 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "GitHubRepositoryUrl": {
+      "Type": "String",
+      "Description": "Your GitHub repository's URL"
+    },
+    "NpmAuthTokenSecretArn": {
+      "Type": "String",
+      "Description": "The Amazon Resource Name (ARN) of the secret (https://aws.amazon.com/secrets-manager/) that contains an npm authorization token (https://docs.npmjs.com/about-access-tokens)."
+    }
+  },
+  "Resources": {
+    "CodeBuildRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": {
+          "Fn::Sub": "${AWS::StackName}-CodeBuildRole"
+        },
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "codebuild.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "CodeBuildAccessPolicy",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": [
+                    "arn:aws:logs:*:*:*"
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "secretsmanager:GetResourcePolicy",
+                    "secretsmanager:GetSecretValue",
+                    "secretsmanager:DescribeSecret"
+                  ],
+                  "Resource": [
+                    {
+                      "Ref": "NpmAuthTokenSecretArn"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "DevelopmentBuild": {
+      "Type": "AWS::CodeBuild::Project",
+      "Properties": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-DevelopmentBuild"
+        },
+        "ServiceRole": {
+          "Fn::GetAtt": [
+            "CodeBuildRole",
+            "Arn"
+          ]
+        },
+        "Artifacts": {
+          "Type": "NO_ARTIFACTS"
+        },
+        "Environment": {
+          "Type": "LINUX_CONTAINER",
+          "ComputeType": "BUILD_GENERAL1_SMALL",
+          "Image": "aws/codebuild/standard:5.0",
+          "PrivilegedMode": true
+        },
+        "Source": {
+          "Auth": {
+            "Type": "OAUTH"
+          },
+          "BuildSpec": "aws/buildspec.ci.yml",
+          "Location": {
+            "Ref": "GitHubRepositoryUrl"
+          },
+          "Type": "GITHUB"
+        },
+        "TimeoutInMinutes": 10,
+        "Triggers": {
+          "Webhook": true,
+          "FilterGroups": [
+            [
+              {
+                "Type": "EVENT",
+                "Pattern": "PUSH, PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED, PULL_REQUEST_REOPENED, PULL_REQUEST_MERGED"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "ProductionBuild": {
+      "Type": "AWS::CodeBuild::Project",
+      "Properties": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-ProductionBuild"
+        },
+        "ServiceRole": {
+          "Fn::GetAtt": [
+            "CodeBuildRole",
+            "Arn"
+          ]
+        },
+        "Artifacts": {
+          "Type": "NO_ARTIFACTS"
+        },
+        "Environment": {
+          "Type": "LINUX_CONTAINER",
+          "ComputeType": "BUILD_GENERAL1_SMALL",
+          "Image": "aws/codebuild/standard:5.0",
+          "PrivilegedMode": true
+        },
+        "Source": {
+          "Auth": {
+            "Type": "OAUTH"
+          },
+          "BuildSpec": "aws/buildspec.cd.yml",
+          "Location": {
+            "Ref": "GitHubRepositoryUrl"
+          },
+          "Type": "GITHUB"
+        },
+        "TimeoutInMinutes": 10,
+        "Triggers": {
+          "Webhook": true,
+          "FilterGroups": [
+            [
+              {
+                "Type": "EVENT",
+                "Pattern": "PULL_REQUEST_MERGED"
+              },
+              {
+                "Type": "HEAD_REF",
+                "Pattern": "^refs/heads/dev$"
+              },
+              {
+                "Type": "BASE_REF",
+                "Pattern": "^refs/heads/main$"
+              }
+            ]
+          ]
+        }
+      }
+    }
+  }
+}
