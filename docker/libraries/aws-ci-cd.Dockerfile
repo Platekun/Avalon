@@ -1,6 +1,6 @@
 FROM node:16-alpine
 
-RUN npm install -g npm@8.4.0
+RUN npm install -g npm@8.4.1
 
 WORKDIR /avalon-project/library
 COPY ./templates/libraries/aws-ci-cd/library/package.json .
@@ -17,7 +17,7 @@ RUN sed -i "s/{{year}}/${YEAR}/" LICENSE
 RUN sed -i "s/{{authorName}}/${AUTHOR_NAME}/" LICENSE
 
 WORKDIR /avalon-project
-RUN sed -i "s/{{npmAuthTokenArn}}/${AWS_NPM_AUTH_TOKEN_SECRET_ARN}/" "buildspec.cd.yml"
+RUN sed -i "s/{{npmAuthTokenArn}}/${AWS_NPM_AUTH_TOKEN_SECRET_ARN}/" "aws/buildspec.cd.yml"
 
 WORKDIR /avalon-project/docker
 RUN sed -i "s/{{projectName}}/${PROJECT_NAME}/" install.Dockerfile

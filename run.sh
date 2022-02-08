@@ -20,44 +20,7 @@ AWS_NPM_AUTH_TOKEN_SECRET_NAME="AVALON_NPM_AUTH_TOKEN";
 CURRENT_YEAR=$(date +"%Y");
 AUTHOR_NAME=$(whoami);
 
-handleDestroyCommand() {
-    if [[ $# == 1 ]]
-    then
-        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}The name of the artifact is required.${ENDCOLOR}");
-        exit 1;
-    else
-        command=${2};
-
-        case ${command} in
-            help) 
-                echo "Usage:  avalon destroy";
-                echo "";
-                echo "🗑  Remove an avalon project form your machine thoroughly (Directories, Containers, Volumes, Repositories and AWS infrastructure).";
-                echo "";
-                echo "📚 Commands:";
-                echo "    help      Display this help message.";
-                echo "";
-                echo "Run 'avalon destroy COMMAND help' for more information on a command.";
-
-                exit 0;;
-            *) 
-                artifactName=${2};
-                imageName="${artifactName}-image";
-                containerName="${artifactName}-container";
-                sourceVolumeName="${artifactName}-source";
-
-                rm -rf ${artifactName};
-                gh repo delete ${artifactName};
-                docker container rm "${containerName}" &> /dev/null;
-                docker volume rm "${sourceVolumeName}" &> /dev/null;
-                docker image rm "${imageName}" &> /dev/null;
-                aws cloudformation delete-stack --stack-name=${artifactName};
-            ;;
-        esac
-    fi
-}
-
-handleInstallCommand() {
+function handleInstallCommand() {
     if [[ $# == 1 ]]
     then
         bash ./scripts/install.sh;
@@ -81,7 +44,7 @@ handleInstallCommand() {
     fi
 }
 
-handleDevelopCommand() {
+function handleDevelopCommand() {
     if [[ $# == 1 ]]
     then
         bash ./scripts/start-development.sh;
@@ -105,11 +68,11 @@ handleDevelopCommand() {
     fi
 }
 
-handleTestCommand() {
+function handleTestCommand() {
     bash ./scripts/test.sh ${1};
 }
 
-handleWatchTestsCommand() {
+function handleWatchTestsCommand() {
     if [[ $# == 1 ]]
     then
         bash ./scripts/watch-tests.sh;
@@ -123,7 +86,7 @@ handleWatchTestsCommand() {
     fi
 }
 
-handleFormatCommand() {
+function handleFormatCommand() {
     if [[ $# == 1 ]]
     then
         bash ./scripts/format.sh;
@@ -147,7 +110,7 @@ handleFormatCommand() {
     fi
 }
 
-handleBuildCommand() {
+function handleBuildCommand() {
     if [[ $# == 1 ]]
     then
         bash ./scripts/build.sh;
@@ -171,7 +134,7 @@ handleBuildCommand() {
     fi
 }
 
-handleReleaseCommand() {
+function handleReleaseCommand() {
     isABareBonesLibrary=$(grep -e "\"ci-cd\": \"barebones\"" ".avaloncli.json");
 
     if [[ -n ${isABareBonesLibrary} ]]
@@ -203,7 +166,7 @@ handleReleaseCommand() {
     fi
 }
 
-handleHelpCommand() {
+function handleHelpCommand() {
     echo "Usage: avalon COMMAND";
     echo ""
     echo "⚔️  A TypeScript application/library generator with opinionated defaults."
@@ -225,8 +188,8 @@ handleHelpCommand() {
     exit 0;
 }
 
-assertArtifactType() {
-    artifactType=$1
+function assertArtifactType() {
+    artifactType=${1};
 
     if [[ ${artifactType} != "library" && ${artifactType} != "application" ]]
     then
@@ -235,8 +198,8 @@ assertArtifactType() {
     fi
 }
 
-assertArtifactName() {
-    artifactName=$1
+function assertArtifactName() {
+    artifactName=${1};
 
     if [[ -z ${artifactName} ]]
     then
@@ -245,7 +208,7 @@ assertArtifactName() {
     fi
 }
 
-rollback() {
+function rollback() {
     artifactName=${1};
     imageName="${artifactName}-image";
     containerName="${artifactName}-container";
@@ -259,19 +222,22 @@ rollback() {
     aws cloudformation delete-stack --stack-name=${artifactName};
 }
 
-createLibrary() {
-    artifactName=$1;
+function createLibraryWithNoCiCd() {
+    # Parameters.
+    artifactName=${1};
     cicd=${2};
     repositoryUrl=${3};
+
+    # Docker - general.
     imageName="${artifactName}-image";
     dockerfilePath="${AVALON_PATH}/docker/libraries/${cicd}.Dockerfile";
     containerName="${artifactName}-container";
 
-    # Node modules volume
+    # Docker - Node modules volume.
     nodeModulesVolumeName="${artifactName}-node_modules";
     nodeModulesContainerPath="/node_modules";
 
-    # Source Code
+    # Docker - Source Code.
     sourceVolumeName="${artifactName}-source";
     sourceCodeContainerPath="/avalon-project";
 
@@ -320,13 +286,9 @@ createLibrary() {
         exit 1;
     };
 
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Cleaning up...${ENDCOLOR}");
+    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Setting up version control...${ENDCOLOR}");
 
-    # Post-execution cleanup
-    docker volume rm "${sourceVolumeName}" &> /dev/null;
-    docker container rm "${containerName}" &> /dev/null;
-    docker image rm "${imageName}" &> /dev/null;
-
+    # Setup version control.
     cd ${artifactName};
     git init;
     git add --all;
@@ -335,11 +297,15 @@ createLibrary() {
     git push -u origin main;
     git checkout -b dev;
     git push -u origin dev;
-    cd ..;
-}
 
-createLibraryWithNoCiCd() {
-    createLibrary $@;
+    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Cleaning up...${ENDCOLOR}");
+
+    # Post-execution cleanup.
+    docker volume rm "${sourceVolumeName}" &> /dev/null;
+    docker container rm "${containerName}" &> /dev/null;
+    docker image rm "${imageName}" &> /dev/null;
+
+    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Success!${ENDCOLOR} Bootstrapped ${artifactName} at \"$(pwd)/${artifactName}.\"")
 
     successMessage="ℹ️  Inside that directory, you can run several commands from the ${BLUE}scripts${ENDCOLOR} directory:
 
@@ -364,18 +330,104 @@ createLibraryWithNoCiCd() {
         ${BLUE}release${ENDCOLOR}
         Prompts your 📦 npm (https://www.npmjs.com) credentials to publish your package.
 
+    🚏 Additionally, a new set of resources was created:
+
+        🐙 Your artifact's GitHub repository is: ${repositoryUrl}.
+
     💡 We suggest that you start by typing:
         ${BLUE}cd${ENDCOLOR} ${1}
         ${BLUE}bash${ENDCOLOR} scripts/start-development.sh
 
-    🍻 Happy hacking!";
+    🍻 Happy hacking!
+";
 
     printf "${successMessage}";
     exit 0;
 }
 
-createLibraryWithGitHubCiCd() {
-    createLibrary $@;
+function createLibraryWithGitHubCiCd() {
+    # Parameters.
+    artifactName=${1};
+    cicd=${2};
+    repositoryUrl=${3};
+
+    # Docker - general.
+    imageName="${artifactName}-image";
+    dockerfilePath="${AVALON_PATH}/docker/libraries/${cicd}.Dockerfile";
+    containerName="${artifactName}-container";
+
+    # Docker - Node modules volume.
+    nodeModulesVolumeName="${artifactName}-node_modules";
+    nodeModulesContainerPath="/node_modules";
+
+    # Docker - Source Code.
+    sourceVolumeName="${artifactName}-source";
+    sourceCodeContainerPath="/avalon-project";
+
+    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Bootstrapping a new TypeScript library with a GitHub Actions CI/CD pipeline...${ENDCOLOR}");
+
+    # Pre-execution cleanup
+    docker container rm "${containerName}" &> /dev/null;
+    docker volume rm "${sourceVolumeName}" &> /dev/null;
+    docker image rm "${imageName}" &> /dev/null;
+
+    # Create an image to run a "create library" command.
+    docker image build \
+        --build-arg PROJECT_NAME=${artifactName} \
+        --build-arg YEAR=${CURRENT_YEAR} \
+        --build-arg AUTHOR_NAME=${AUTHOR_NAME} \
+        --file ${dockerfilePath} \
+        --tag "${imageName}" \
+        ${AVALON_PATH} || \
+        {
+            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while creating an image to run a 'create library' command.");
+            rollback ${artifactName};
+            exit 1;
+        };
+
+    # Run the "create library" command container.
+    docker container run \
+        --interactive \
+        --tty \
+        -v "${nodeModulesVolumeName}":"${nodeModulesContainerPath}" \
+        -v "${sourceVolumeName}":"${sourceCodeContainerPath}" \
+        --name "${containerName}" \
+        "${imageName}" \
+        || {
+            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while running a 'create library' container command.");
+            rollback ${artifactName};
+            exit 1;
+        };
+
+    # Copy the contents of the source code volume into a new `library` directory.
+    docker cp "${containerName}":"${sourceCodeContainerPath}" "./${artifactName}" || \
+    { 
+        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while copying the contents of the source code volume into a new `library` directory.");
+        rollback ${artifactName};
+        exit 1;
+    };
+
+    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Setting up version control...${ENDCOLOR}");
+
+    # Setup version control.
+    cd ${artifactName};
+    git init;
+    git add --all;
+    git commit -m "Initial commit from Avalon v${AVALON_VERSION}";
+    git remote add origin ${repositoryUrl};
+    git push -u origin main;
+    git checkout -b dev;
+    git push -u origin dev;
+    cd ..;
+
+    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Cleaning up...${ENDCOLOR}");
+
+    # Post-execution cleanup.
+    docker volume rm "${sourceVolumeName}" &> /dev/null;
+    docker container rm "${containerName}" &> /dev/null;
+    docker image rm "${imageName}" &> /dev/null;
+
+    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Success!${ENDCOLOR} Bootstrapped ${artifactName} at \"$(pwd)/${artifactName}.\"")
 
     successMessage="
     ℹ️  Inside that directory, you can run several commands from the ${BLUE}scripts${ENDCOLOR} directory:
@@ -398,17 +450,22 @@ createLibraryWithGitHubCiCd() {
         ${BLUE}build${ENDCOLOR}
         Compiles your source code using the 🧙‍♂️ TypeScript compiler (https://www.npmjs.com/package/typescript).
 
+    🚏 Additionally, a new set of resources was created:
+
+        🐙 Your artifact's GitHub repository is: ${repositoryUrl}.
+
     💡 We suggest that you start by typing:
         ${BLUE}cd${ENDCOLOR} ${1}
         ${BLUE}bash${ENDCOLOR} scripts/start-development.sh
 
-    🍻 Happy hacking!";
+    🍻 Happy hacking!
+";
 
     printf "${successMessage}";
     exit 0;
 }
 
-createLibraryWithAwsCiCd() {
+function createLibraryWithAwsCiCd() {
     # Parameters.
     artifactName=${1};
     cicd=${2};
@@ -479,6 +536,8 @@ createLibraryWithAwsCiCd() {
         exit 1;
     };
 
+    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Setting up version control...${ENDCOLOR}");
+
     # Setup version control.
     cd ${artifactName};
     git init;
@@ -488,6 +547,8 @@ createLibraryWithAwsCiCd() {
     git push -u origin main;
     git checkout -b dev;
     git push -u origin dev;
+
+    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Creating AWS CI/CD infrastructure...${ENDCOLOR}");
 
     # Create CI/CD infrastructure.
     aws cloudformation deploy \
@@ -506,10 +567,15 @@ createLibraryWithAwsCiCd() {
 
     echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Cleaning up...${ENDCOLOR}");
 
-    # Post-execution cleanup
+    # Post-execution cleanup.
     docker volume rm "${sourceVolumeName}" &> /dev/null;
     docker container rm "${containerName}" &> /dev/null;
     docker image rm "${imageName}" &> /dev/null;
+
+    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Success!${ENDCOLOR} Bootstrapped ${artifactName} at \"$(pwd)/${artifactName}.\"")
+
+    awsRegion=$(aws configure get region);
+    awsAccountId=$(aws sts get-caller-identity --query "Account" --output text);
 
     successMessage="
     ℹ️  Inside that directory, you can run several commands from the ${BLUE}scripts${ENDCOLOR} directory:
@@ -532,27 +598,27 @@ createLibraryWithAwsCiCd() {
         ${BLUE}build${ENDCOLOR}
         Compiles your source code using the 🧙‍♂️ TypeScript compiler (https://www.npmjs.com/package/typescript).
 
+    🚏 Additionally, a new set of resources was created:
+
+        🐙 Your artifact's GitHub repository is: ${repositoryUrl}.
+
+        ☁️  Your CI CodeBuild project is: https://${awsRegion}.console.aws.amazon.com/codesuite/codebuild/${awsAccountId}/projects/${artifactName}-DevelopmentBuild/history?region=${awsRegion}.
+
+        ☁️  Your CD CodeBuild project is: https://${awsRegion}.console.aws.amazon.com/codesuite/codebuild/${awsAccountId}/projects/${artifactName}-ProductionBuild/history?region=${awsRegion}.
+
     💡 We suggest that you start by typing:
         ${BLUE}cd${ENDCOLOR} ${1}
         ${BLUE}bash${ENDCOLOR} scripts/start-development.sh
 
-    🍻 Happy hacking!";
+    🍻 Happy hacking!
+";
 
     printf "${successMessage}";
     exit 0;
 }
 
-handleNewCommand() {
+function handleNewCommand() {
     artifactName=${2};
-
-    gh repo create ${artifactName} --private || \
-        {
-            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while creating a attempting to create GitHub Repository. Make sure GitHub CLI is properly configured with your credentials.");
-            rollback ${artifactName};
-            exit 1;
-        };
-
-    repositoryUrl=$(gh repo view ${artifactName} --json "url"  --jq ".url");
 
     # Defaults.
     artifactType=${LIBRARY_ARTIFACT_TYPE};
@@ -568,7 +634,7 @@ handleNewCommand() {
                 echo ""
                 echo "🏳  Options:";
                 echo "    --artifact=string      Sets the software artifact type (\"library\"|\"application\").";
-                echo "    --ci-cd=string            Sets the continous integration configuration (\"barebones\"|\"github-actions\|\"aws\"").";
+                echo "    --ci-cd=string         Sets the continous integration configuration (\"barebones\"|\"github-actions\"|\"aws\").";
                 echo ""
                 echo "📚 Commands:";
                 echo "    help      Display this help message.";
@@ -591,6 +657,17 @@ handleNewCommand() {
     assertArtifactName ${artifactName};
     assertArtifactType ${artifactType};
 
+    gh repo create ${artifactName} --private || \
+        {
+            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while creating a attempting to create GitHub Repository. Make sure GitHub CLI is properly configured with your credentials.");
+            rollback ${artifactName};
+            exit 1;
+        };
+
+    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Creating new GitHub repository for ${artifactName}...${ENDCOLOR}");
+
+    repositoryUrl=$(gh repo view ${artifactName} --json "url"  --jq ".url");
+
     if [[ ${artifactType} == ${LIBRARY_ARTIFACT_TYPE} ]]
     then
         if [[ ${cicd} == ${NO_CI_CD} ]]
@@ -606,12 +683,49 @@ handleNewCommand() {
     fi
 }
 
-handleUnknownCommand() {
+function handleDestroyCommand() {
+    if [[ $# == 1 ]]
+    then
+        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}The name of the artifact is required.${ENDCOLOR}");
+        exit 1;
+    else
+        command=${2};
+
+        case ${command} in
+            help) 
+                echo "Usage:  avalon destroy";
+                echo "";
+                echo "🗑  Remove an avalon project form your machine thoroughly (Directories, Containers, Volumes, Repositories and AWS infrastructure).";
+                echo "";
+                echo "📚 Commands:";
+                echo "    help      Display this help message.";
+                echo "";
+                echo "Run 'avalon destroy COMMAND help' for more information on a command.";
+
+                exit 0;;
+            *) 
+                artifactName=${2};
+                imageName="${artifactName}-image";
+                containerName="${artifactName}-container";
+                sourceVolumeName="${artifactName}-source";
+
+                rm -rf ${artifactName};
+                gh repo delete ${artifactName};
+                docker container rm "${containerName}" &> /dev/null;
+                docker volume rm "${sourceVolumeName}" &> /dev/null;
+                docker image rm "${imageName}" &> /dev/null;
+                aws cloudformation delete-stack --stack-name=${artifactName};
+            ;;
+        esac
+    fi
+}
+
+function handleUnknownCommand() {
     echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Command not supported. Try using ${BLUE}'avalon help'${ENDCOLOR} ${RED}command. ${ENDCOLOR}");
     exit 2;
 }
 
-bootstrap() {
+function bootstrap() {
     if [[ $# == 0 ]]
     then
         handleHelpCommand;
@@ -620,7 +734,6 @@ bootstrap() {
     command=${1};
 
     case ${command} in
-        destroy) handleDestroyCommand $@;;
         install) handleInstallCommand $@;;
         develop) handleDevelopCommand $@;;
         test) handleTestCommand ${2};;
@@ -630,6 +743,7 @@ bootstrap() {
         release) handleReleaseCommand $@;;
         help) handleHelpCommand $@;;
         new) handleNewCommand $@;;
+        destroy) handleDestroyCommand $@;;
         *) handleUnknownCommand;;
     esac
 }

@@ -140,7 +140,6 @@ $ avalon
     --ci-cd=string            Sets the continous integration configuration ("barebones"|"github-actions").
 
 📚 Commands:
-    destroy       Remove an avalon artifact form your machine.
     install       Install your project dependencies.
     develop       Spin up a development environment.
     test          Execute the test runner.
@@ -150,6 +149,7 @@ $ avalon
     release       Release your software to the world.
     new           Create a new Avalon artifact.
     help          Display this help message.
+    destroy       Remove an avalon artifact form your machine.
 
 Run 'avalon COMMAND help' for more information on a command.
 ```
