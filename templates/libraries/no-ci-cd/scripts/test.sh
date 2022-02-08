@@ -1,9 +1,9 @@
 #!/bin/bash
 
-GREEN="\e[32m"
-ENDCOLOR="\e[0m"
+GREEN="\e[32m";
+ENDCOLOR="\e[0m";
 
-echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}🚥 Executing test runner...${ENDCOLOR}")
+echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}🚥 Executing test runner...${ENDCOLOR}");
 
 # ███████╗███████╗████████╗██╗   ██╗██████╗ 
 # ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗
@@ -12,15 +12,15 @@ echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}�
 # ███████║███████╗   ██║   ╚██████╔╝██║     
 # ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝
 
-projectName="{{projectName}}"
-imageName="${projectName}-test-image"
-dockerFilePath="./docker/test.Dockerfile"
-containerName="${projectName}-test-container"
-targetFileGlob=$1
+projectName="{{projectName}}";
+imageName="${projectName}-test-image";
+dockerFilePath="./docker/test.Dockerfile";
+containerName="${projectName}-test-container";
+targetFileGlob=${1};
 
 # Node modules volume.
-nodeModulesVolumeName="${projectName}-node_modules"
-nodeModulesContainerPath="/node_modules"
+nodeModulesVolumeName="${projectName}-node_modules";
+nodeModulesContainerPath="/node_modules";
 
 # ███████╗██╗  ██╗███████╗ ██████╗██╗   ██╗████████╗██╗ ██████╗ ███╗   ██╗
 # ██╔════╝╚██╗██╔╝██╔════╝██╔════╝██║   ██║╚══██╔══╝██║██╔═══██╗████╗  ██║
@@ -30,23 +30,23 @@ nodeModulesContainerPath="/node_modules"
 # ╚══════╝╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═════╝    ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
 
 # Pre-execution.
-docker container rm "${containerName}" &> /dev/null
-docker image rm "${imageName}" &> /dev/null
+docker container rm ${containerName} &> /dev/null;
+docker image rm ${imageName} &> /dev/null;
 
 # Create an image to run a "execute test runner" command.
 docker image build \
-  --file "${dockerFilePath}" \
-  --tag "${imageName}" \
-  .
+  --file ${dockerFilePath} \
+  --tag ${imageName} \
+  .;
 
 # Run the "Execute test runner" command container.
 docker container run \
   --rm \
   --tty \
-  -v "${nodeModulesVolumeName}":"${nodeModulesContainerPath}" \
-  --name "${containerName}" \
-  "${imageName}" \
-  ${targetFileGlob}
+  -v ${nodeModulesVolumeName}:${nodeModulesContainerPath} \
+  --name ${containerName} \
+  ${imageName} \
+  ${targetFileGlob};
 
 # Post-execution cleanup.
-docker image rm "${imageName}" &> /dev/null
+docker image rm ${imageName} &> /dev/null;

@@ -244,11 +244,9 @@ function createLibraryWithNoCiCd() {
     echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Bootstrapping a new TypeScript library...${ENDCOLOR}");
 
     # Pre-execution cleanup
-    docker container rm "${containerName}" &> /dev/null;
-    docker volume rm "${sourceVolumeName}" &> /dev/null;
-    docker image rm "${imageName}" &> /dev/null;
-
-    echo "$dockerfilePath $imageName $AVALON_PATH"
+    docker container rm ${containerName} &> /dev/null;
+    docker volume rm ${sourceVolumeName} &> /dev/null;
+    docker image rm ${imageName} &> /dev/null;
 
     # Create an image to run a "create library" command.
     docker image build \
@@ -256,7 +254,7 @@ function createLibraryWithNoCiCd() {
         --build-arg YEAR=${CURRENT_YEAR} \
         --build-arg AUTHOR_NAME=${AUTHOR_NAME} \
         --file ${dockerfilePath} \
-        --tag "${imageName}" \
+        --tag ${imageName} \
         ${AVALON_PATH} || \
         {
             echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while creating an image to run a 'create library' command.");
@@ -268,10 +266,10 @@ function createLibraryWithNoCiCd() {
     docker container run \
         --interactive \
         --tty \
-        -v "${nodeModulesVolumeName}":"${nodeModulesContainerPath}" \
-        -v "${sourceVolumeName}":"${sourceCodeContainerPath}" \
-        --name "${containerName}" \
-        "${imageName}" \
+        -v ${nodeModulesVolumeName}:${nodeModulesContainerPath} \
+        -v ${sourceVolumeName}:${sourceCodeContainerPath} \
+        --name ${containerName} \
+        ${imageName} \
         || {
             echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while running a 'create library' container command.");
             rollback ${artifactName};
@@ -279,7 +277,7 @@ function createLibraryWithNoCiCd() {
         };
 
     # Copy the contents of the source code volume into a new `library` directory.
-    docker cp "${containerName}":"${sourceCodeContainerPath}" "./${artifactName}" || \
+    docker cp ${containerName}:${sourceCodeContainerPath} "./${artifactName}" || \
     { 
         echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while copying the contents of the source code volume into a new `library` directory.");
         rollback ${artifactName};
@@ -301,13 +299,14 @@ function createLibraryWithNoCiCd() {
     echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Cleaning up...${ENDCOLOR}");
 
     # Post-execution cleanup.
-    docker volume rm "${sourceVolumeName}" &> /dev/null;
-    docker container rm "${containerName}" &> /dev/null;
-    docker image rm "${imageName}" &> /dev/null;
+    docker volume rm ${sourceVolumeName} &> /dev/null;
+    docker container rm ${containerName} &> /dev/null;
+    docker image rm ${imageName} &> /dev/null;
 
     echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Success!${ENDCOLOR} Bootstrapped ${artifactName} at \"$(pwd)/${artifactName}.\"")
 
-    successMessage="ℹ️  Inside that directory, you can run several commands from the ${BLUE}scripts${ENDCOLOR} directory:
+    successMessage="
+    ℹ️  Inside that directory, you can run several commands from the ${BLUE}scripts${ENDCOLOR} directory:
 
         ${BLUE}install${ENDCOLOR}
         Installs the library dependencies (AKA your node_modules).
@@ -367,9 +366,9 @@ function createLibraryWithGitHubCiCd() {
     echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Bootstrapping a new TypeScript library with a GitHub Actions CI/CD pipeline...${ENDCOLOR}");
 
     # Pre-execution cleanup
-    docker container rm "${containerName}" &> /dev/null;
-    docker volume rm "${sourceVolumeName}" &> /dev/null;
-    docker image rm "${imageName}" &> /dev/null;
+    docker container rm ${containerName} &> /dev/null;
+    docker volume rm ${sourceVolumeName} &> /dev/null;
+    docker image rm ${imageName} &> /dev/null;
 
     # Create an image to run a "create library" command.
     docker image build \
@@ -377,7 +376,7 @@ function createLibraryWithGitHubCiCd() {
         --build-arg YEAR=${CURRENT_YEAR} \
         --build-arg AUTHOR_NAME=${AUTHOR_NAME} \
         --file ${dockerfilePath} \
-        --tag "${imageName}" \
+        --tag ${imageName} \
         ${AVALON_PATH} || \
         {
             echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while creating an image to run a 'create library' command.");
@@ -389,10 +388,10 @@ function createLibraryWithGitHubCiCd() {
     docker container run \
         --interactive \
         --tty \
-        -v "${nodeModulesVolumeName}":"${nodeModulesContainerPath}" \
-        -v "${sourceVolumeName}":"${sourceCodeContainerPath}" \
-        --name "${containerName}" \
-        "${imageName}" \
+        -v ${nodeModulesVolumeName}:${nodeModulesContainerPath} \
+        -v ${sourceVolumeName}:${sourceCodeContainerPath} \
+        --name ${containerName} \
+        ${imageName} \
         || {
             echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while running a 'create library' container command.");
             rollback ${artifactName};
@@ -400,7 +399,7 @@ function createLibraryWithGitHubCiCd() {
         };
 
     # Copy the contents of the source code volume into a new `library` directory.
-    docker cp "${containerName}":"${sourceCodeContainerPath}" "./${artifactName}" || \
+    docker cp ${containerName}:${sourceCodeContainerPath} "./${artifactName}" || \
     { 
         echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while copying the contents of the source code volume into a new `library` directory.");
         rollback ${artifactName};
@@ -423,9 +422,9 @@ function createLibraryWithGitHubCiCd() {
     echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Cleaning up...${ENDCOLOR}");
 
     # Post-execution cleanup.
-    docker volume rm "${sourceVolumeName}" &> /dev/null;
-    docker container rm "${containerName}" &> /dev/null;
-    docker image rm "${imageName}" &> /dev/null;
+    docker volume rm ${sourceVolumeName} &> /dev/null;
+    docker container rm ${containerName} &> /dev/null;
+    docker image rm ${imageName} &> /dev/null;
 
     echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Success!${ENDCOLOR} Bootstrapped ${artifactName} at \"$(pwd)/${artifactName}.\"")
 
@@ -487,9 +486,9 @@ function createLibraryWithAwsCiCd() {
     echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Bootstrapping a new TypeScript library with an AWS CI/CD pipeline...${ENDCOLOR}");
 
     # Pre-execution cleanup.
-    docker container rm "${containerName}" &> /dev/null;
-    docker volume rm "${sourceVolumeName}" &> /dev/null;
-    docker image rm "${imageName}" &> /dev/null;
+    docker container rm ${containerName} &> /dev/null;
+    docker volume rm ${sourceVolumeName} &> /dev/null;
+    docker image rm ${imageName} &> /dev/null;
 
     # Retrieve the ARN of your npm authorization token residing in AWS Secrets Manager.
     AWS_NPM_AUTH_TOKEN_SECRET_ARN=$(aws secretsmanager get-secret-value --secret-id=${AWS_NPM_AUTH_TOKEN_SECRET_NAME} --query="ARN" --output text) || \
@@ -506,7 +505,7 @@ function createLibraryWithAwsCiCd() {
         --build-arg AUTHOR_NAME=${AUTHOR_NAME} \
         --build-arg AWS_NPM_AUTH_TOKEN_SECRET_ARN=${AWS_NPM_AUTH_TOKEN_SECRET_ARN} \
         --file ${dockerfilePath} \
-        --tag "${imageName}" \
+        --tag ${imageName} \
         ${AVALON_PATH} || \
         {
             echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while creating an image to run a 'create library' command.");
@@ -518,10 +517,10 @@ function createLibraryWithAwsCiCd() {
     docker container run \
         --interactive \
         --tty \
-        -v "${nodeModulesVolumeName}":"${nodeModulesContainerPath}" \
-        -v "${sourceVolumeName}":"${sourceCodeContainerPath}" \
-        --name "${containerName}" \
-        "${imageName}" \
+        -v ${nodeModulesVolumeName}:${nodeModulesContainerPath} \
+        -v ${sourceVolumeName}:${sourceCodeContainerPath} \
+        --name ${containerName} \
+        ${imageName} \
         || {
             echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while running a 'create library' container command.");
             rollback ${artifactName};
@@ -529,7 +528,7 @@ function createLibraryWithAwsCiCd() {
         };
 
     # Copy the contents of the source code volume into a new `library` directory.
-    docker cp "${containerName}":"${sourceCodeContainerPath}" "./${artifactName}" || \
+    docker cp ${containerName}:${sourceCodeContainerPath} "./${artifactName}" || \
     { 
         echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while copying the contents of the source code volume into a new `library` directory.");
         rollback ${artifactName};
@@ -568,9 +567,9 @@ function createLibraryWithAwsCiCd() {
     echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Cleaning up...${ENDCOLOR}");
 
     # Post-execution cleanup.
-    docker volume rm "${sourceVolumeName}" &> /dev/null;
-    docker container rm "${containerName}" &> /dev/null;
-    docker image rm "${imageName}" &> /dev/null;
+    docker volume rm ${sourceVolumeName} &> /dev/null;
+    docker container rm ${containerName} &> /dev/null;
+    docker image rm ${imageName} &> /dev/null;
 
     echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Success!${ENDCOLOR} Bootstrapped ${artifactName} at \"$(pwd)/${artifactName}.\"")
 
