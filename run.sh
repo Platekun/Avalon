@@ -27,6 +27,7 @@ function logBlankLine() {
 function log() {
   message=${1};
 
+  # 💡 Note: "The '-n' flag is usted to keep the white spaces".
   echo -n -e "${message}\n";
 }
 

@@ -44,4 +44,4 @@ WORKDIR /avalon-project/library
 RUN sed -i "s/{{projectName}}/${PROJECT_NAME}/" package.json
 RUN sed -i "s/{{projectName}}/${PROJECT_NAME}/" package-lock.json
 
-CMD ["echo", ""]
+CMD ["echo", "🐳"]
