@@ -853,16 +853,54 @@ function handleDestroyCommand() {
         exit 0;;
       *)
         artifactName=${2};
+
         imageName="${artifactName}-image";
+        buildImageName="${artifactName}-build-image";
+        ciImageName="${artifactName}-ci-image";
+        formatImageName="${artifactName}-format-image";
+        installationImageName="${artifactName}-installation-image";
+        releaseImageName="${artifactName}-release-image";
+        startDevelopmentImageName="${artifactName}-development-image";
+        testImageName="${artifactName}-test-image";
+
         containerName="${artifactName}-container";
+        buildContainerName="${artifactName}-build-container";
+        ciContainerName="${artifactName}-ci-container";
+        formatImageContainer="${artifactName}-format-container";
+        instalationContainerName="${artifactName}-installation-container";
+        releaseContainerName="${artifactName}-release-container";
+        startDevelopmentContainerName="${artifactName}-development-container";
+        testContainerName="${artifactName}-test-container";
+
         sourceVolumeName="${artifactName}-source";
+        nodeModulesVolumeName="${artifactName}-node_modules";
+
+        docker container rm ${containerName} &> /dev/null;
+        docker container rm ${buildContainerName} &> /dev/null;
+        docker container rm ${ciContainerName} &> /dev/null;
+        docker container rm ${formatImageContainer} &> /dev/null;
+        docker container rm ${instalationContainerName} &> /dev/null;
+        docker container rm ${releaseContainerName} &> /dev/null;
+        docker container rm ${startDevelopmentContainerName} &> /dev/null;
+        docker container rm ${testContainerName} &> /dev/null;
+
+        docker volume rm ${sourceVolumeName} &> /dev/null;
+        docker volume rm ${nodeModulesVolumeName} &> /dev/null;
+
+        docker image rm ${imageName} &> /dev/null;
+        docker image rm ${buildImageName} &> /dev/null;
+        docker image rm ${ciImageName} &> /dev/null;
+        docker image rm ${formatImageName} &> /dev/null;
+        docker image rm ${installationImageName} &> /dev/null;
+        docker image rm ${releaseImageName} &> /dev/null;
+        docker image rm ${startDevelopmentImageName} &> /dev/null;
+        docker image rm ${testImageName} &> /dev/null;
+
+        aws cloudformation delete-stack --stack-name=${artifactName};
+
+        gh repo delete ${artifactName};
 
         rm -rf ${artifactName};
-        gh repo delete ${artifactName};
-        docker container rm "${containerName}" &> /dev/null;
-        docker volume rm "${sourceVolumeName}" &> /dev/null;
-        docker image rm "${imageName}" &> /dev/null;
-        aws cloudformation delete-stack --stack-name=${artifactName};
         exit 0;;
     esac
   fi
