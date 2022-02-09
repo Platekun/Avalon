@@ -327,6 +327,6 @@ Use `avalon destroy` to delete an avalon artifact form your machine. It makes su
 
 #### Commands
 
-| Options | Default | Description               | Valid Values |
-| :------ | :------ | :------------------------ | :----------- |
-| `help`  |         | Displays the help message |              |
+| Options | Description               |
+| :------ | :------------------------ |
+| `help`  | Displays the help message |
