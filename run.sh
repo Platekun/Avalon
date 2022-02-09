@@ -394,7 +394,7 @@ function createLibraryWithGitHubCiCd() {
 
   # Docker - general.
   imageName="${artifactName}-image";
-  dockerfilePath="${AVALON_PATH}/docker/libraries/${cicd}.Dockerfile";
+  dockerfilePath="${AVALON_PATH}/docker/libraries/createLibrary.Dockerfile";
   containerName="${artifactName}-container";
 
   # Docker - Node modules volume.
@@ -414,9 +414,6 @@ function createLibraryWithGitHubCiCd() {
 
   # Create an image to run a "create library" command.
   docker image build \
-    --build-arg PROJECT_NAME=${artifactName} \
-    --build-arg YEAR=${CURRENT_YEAR} \
-    --build-arg AUTHOR_NAME=${AUTHOR_NAME} \
     --file ${dockerfilePath} \
     --tag ${imageName} \
     ${AVALON_PATH} || \
@@ -434,7 +431,7 @@ function createLibraryWithGitHubCiCd() {
     -v ${nodeModulesVolumeName}:${nodeModulesContainerPath} \
     -v ${sourceVolumeName}:${sourceCodeContainerPath} \
     --name ${containerName} \
-    ${imageName} \
+    ${imageName} ${artifactName} ${CURRENT_YEAR} ${AUTHOR_NAME} \
     || {
         avalog "${RED} Bootstrap Error. Failed while running a 'create library' container command.${END_COLOR}";
         rollback ${artifactName};
@@ -515,7 +512,7 @@ function createLibraryWithAwsCiCd() {
 
   # Docker - general.
   imageName="${artifactName}-image";
-  dockerfilePath="${AVALON_PATH}/docker/libraries/${cicd}.Dockerfile";
+  dockerfilePath="${AVALON_PATH}/docker/libraries/createLibrary.Dockerfile";
   containerName="${artifactName}-container";
 
   # Docker - Node modules volume.

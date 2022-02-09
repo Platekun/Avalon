@@ -4,11 +4,11 @@ FROM node:16-alpine
 RUN apk update && apk add bash
 RUN npm install -g npm@8.4.1
 
-COPY ./scripts/createLibraryWithAwsCiCd.sh .
-RUN chmod +x createLibraryWithAwsCiCd.sh
+COPY ./scripts/createLibraryWithAwsCiCd.sh ./bootstrap.sh
+RUN chmod +x bootstrap.sh
 
 # 💡 https://stackoverflow.com/questions/14219092/bash-script-and-bin-bashm-bad-interpreter-no-such-file-or-directory
-RUN sed -i -e 's/\r$//' createLibraryWithAwsCiCd.sh
+RUN sed -i -e 's/\r$//' bootstrap.sh
 
 WORKDIR /avalon-project/library
 COPY ./templates/libraries/aws-ci-cd/library/package.json .
@@ -20,4 +20,4 @@ COPY ./templates/libraries/aws-ci-cd /avalon-project
 WORKDIR /
 
 # 💡 https://stackoverflow.com/questions/37904682/how-do-i-use-docker-environment-variable-in-entrypoint-array
-ENTRYPOINT ["/bin/bash", "-c", "exec ./createLibraryWithAwsCiCd.sh ${@}", "--"];
+ENTRYPOINT ["/bin/bash", "-c", "exec ./bootstrap.sh ${@}", "--"];
