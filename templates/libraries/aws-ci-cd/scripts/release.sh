@@ -1,19 +1,23 @@
 #!/bin/bash
 
-RED="\e[31m";
-GREEN="\e[32m";
-BLUE="\e[34m";
-ENDCOLOR="\e[0m";
+RED="\033[0;31m";
+GREEN="\033[0;32m";
+BLUE="\033[0;34m";
+END_COLOR="\033[0m";
+
+function log() {
+    echo -e "${1}";
+}
 
 NPM_AUTH_TOKEN=${1};
 
 if [[ -z ${NPM_AUTH_TOKEN} ]]
 then
-  echo $(printf "${RED}Authorization token not found. Create a valid authorization token and store it in the project's secrets as NPM_AUTH_TOKEN. Read more at https://docs.npmjs.com/creating-and-viewing-access-tokens.${ENDCOLOR}");
+  log "${RED}Authorization token not found. Create a valid authorization token and store it in the project's secrets as NPM_AUTH_TOKEN. Read more at https://docs.npmjs.com/creating-and-viewing-access-tokens.${END_COLOR}";
   exit 1;
 fi
 
-echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}📦 Preparing to release...${ENDCOLOR}");
+log "${GREEN}[Avalon]${END_COLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}📦 Preparing to release...${END_COLOR}";
 
 # ███████╗███████╗████████╗██╗   ██╗██████╗ 
 # ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗

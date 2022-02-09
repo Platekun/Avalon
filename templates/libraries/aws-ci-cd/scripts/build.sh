@@ -1,9 +1,13 @@
 #!/bin/bash
 
-GREEN="\e[32m";
-ENDCOLOR="\e[0m";
+GREEN="\033[0;32m";
+END_COLOR="\033[0m";
 
-echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}🏗⠀⠀Building project...${ENDCOLOR}");
+function log() {
+    echo -e "${1}";
+}
+
+log "${GREEN}[Avalon]${END_COLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}🏗⠀⠀Building project...${END_COLOR}";
 
 # ███████╗███████╗████████╗██╗   ██╗██████╗ 
 # ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗

@@ -4,10 +4,10 @@
 
 AVALON_VERSION=0.0.1;
 
-RED="\e[31m";
-GREEN="\e[32m";
-BLUE="\e[34m";
-ENDCOLOR="\e[0m";
+RED="\033[0;31m";
+GREEN="\033[0;32m";
+BLUE="\033[0;34m";
+END_COLOR="\033[0m";
 
 # Enums
 LIBRARY_ARTIFACT_TYPE="library";
@@ -20,75 +20,113 @@ AWS_NPM_AUTH_TOKEN_SECRET_NAME="AVALON_NPM_AUTH_TOKEN";
 CURRENT_YEAR=$(date +"%Y");
 AUTHOR_NAME=$(whoami);
 
-function handleHelpCommand() {
-    echo "Usage: avalon help COMMAND";
-    echo ""
-    echo "⚔️  A TypeScript application/library generator with opinionated defaults."
-    echo ""
-    echo "📚 Commands:";
-    echo "    help          Display this help message.";
-    echo "    install       Install your project dependencies.";
-    echo "    develop       Spin up a development environment.";
-    echo "    test          Execute the test runner.";
-    echo "    watch-tests   Execute the test runner and watch for changes.";
-    echo "    format        Format your source code.";
-    echo "    build         Compile your source code.";
-    echo "    release       Release your software to the world.";
-    echo "    new           Create a new Avalon artifact.";
-    echo "    open          Browse your resources."
-    echo "    destroy       Remove an avalon project form your machine.";
-    echo ""
-    echo "Run 'avalon COMMAND help' for more information on a command.";
+function logBlankLine() {
+  echo "";
+}
 
-    exit 0;
+function log() {
+  message=${1};
+
+  echo -n -e "${message}\n";
+}
+
+function avalog() {
+  message=${1};
+
+  echo -e "${GREEN}[Avalon]${END_COLOR} - $(date +"%m-%d-%Y, %r") - ${message}";
+}
+
+function logCommandUsage() {
+  usageSyntax=${1};
+
+  logBlankLine;
+  log "Usage: ${usageSyntax}";
+  logBlankLine;
+}
+
+function logCommandDescription() {
+  emoji=${1};
+  description=${2};
+
+  log "${1}⠀⠀${2}";
+  logBlankLine;
+}
+
+function logOptionsTitle() {
+  log "🏳⠀⠀Options:";
+};
+
+function logCommandsTitle() {
+  log "📚⠀⠀Commands:";
+}
+
+function logCommandFooter() {
+  usageSyntax=${1};
+
+  log "Run '${usageSyntax}' for more information on a command.";
+}
+
+function handleHelpCommand() {
+  logCommandUsage "avalon help COMMAND";
+  logCommandDescription "⚔️" "A TypeScript application/library generator with opinionated defaults.";
+  logCommandsTitle;
+  log "    help          Display this help message.";
+  log "    install       Install your project dependencies.";
+  log "    develop       Spin up a development environment.";
+  log "    test          Execute the test runner.";
+  log "    watch-tests   Execute the test runner and watch for changes.";
+  log "    format        Format your source code.";
+  log "    build         Compile your source code.";
+  log "    release       Release your software to the world.";
+  log "    new           Create a new Avalon artifact.";
+  log "    open          Browse your resources."
+  log "    destroy       Remove an avalon project form your machine.";
+  logBlankLine;
+  logCommandFooter "avalon COMMAND help";
+
+  exit 0;
 }
 
 function handleInstallCommand() {
-    if [[ $# == 1 ]]
-    then
-        bash ./scripts/install.sh;
-    else
-        command=${2};
+  if [[ $# == 1 ]]
+  then
+    bash ./scripts/install.sh;
+  else
+    command=${2};
 
-        case ${command} in
-            help) 
-                echo "Usage:  avalon install";
-                echo "";
-                echo "🛠  Install your project dependencies.";
-                echo "";
-                echo "📚 Commands:";
-                echo "    help      Display this help message.";
-                echo "";
-                echo "Run 'avalon install COMMAND help' for more information on a command.";
+    case ${command} in
+      help)
+        logCommandUsage "avalon install";
+        logCommandDescription "🛠" "Install your project dependencies.";
+        logCommandsTitle;
+        log "    help      Display this help message.";
+        logBlankLine;
 
-                exit 0;;
-            *) handleUnknownCommand;;
-        esac
-    fi
+        exit 0;;
+      *) handleUnknownCommand;;
+    esac
+  fi
 }
 
 function handleDevelopCommand() {
-    if [[ $# == 1 ]]
-    then
-        bash ./scripts/start-development.sh;
-    else
-        command=${2};
+  if [[ $# == 1 ]]
+  then
+    bash ./scripts/start-development.sh;
+  else
+    command=${2};
 
-        case ${command} in
-            help) 
-            echo "Usage:  avalon develop";
-            echo "";
-            echo "🔥 Spin up a development environment.";
-            echo "";
-            echo "📚 Commands:";
-            echo "    help      Display this help message.";
-            echo "";
-            echo "Run 'avalon develop COMMAND help' for more information on a command.";
+    case ${command} in
+      help)
+        logCommandUsage "avalon develop";
+        logCommandDescription "🔥" "Spin up a development environment.";
+        logCommandsTitle;
+        log "    help      Display this help message.";
+        logBlankLine;
 
-            exit 0;;
-            *) handleUnknownCommand;;
-        esac
-    fi
+      exit 0;;
+      *) handleUnknownCommand;;
+    esac
+  fi
 }
 
 function handleTestCommand() {
@@ -110,736 +148,756 @@ function handleWatchTestsCommand() {
 }
 
 function handleFormatCommand() {
-    if [[ $# == 1 ]]
-    then
-        bash ./scripts/format.sh;
-    else
-        command=${2};
+  if [[ $# == 1 ]]
+  then
+    bash ./scripts/format.sh;
+  else
+    command=${2};
 
-        case ${command} in
-            help) 
-                echo "Usage:  avalon format";
-                echo "";
-                echo "💅 Format your source code."
-                echo "";
-                echo "📚 Commands:";
-                echo "    help      Display this help message.";
-                echo "";
-                echo "Run 'avalon format COMMAND help' for more information on a command.";
+    case ${command} in
+      help)
+        logCommandUsage "avalon format";
+        logCommandDescription "💅" "Format your source code.";
+        logCommandsTitle;
+        log "    help      Display this help message.";
+        logBlankLine;
 
-                exit 0;;
-            *) handleUnknownCommand;;
-        esac
-    fi
+        exit 0;;
+      *) handleUnknownCommand;;
+    esac
+  fi
 }
 
 function handleBuildCommand() {
-    if [[ $# == 1 ]]
-    then
-        bash ./scripts/build.sh;
-    else
-        command=${2};
+  if [[ $# == 1 ]]
+  then
+    bash ./scripts/build.sh;
+  else
+    command=${2};
 
-        case ${command} in
-            help) 
-                echo "Usage:  avalon build";
-                echo "";
-                echo "🧙‍♂️ Compile your source code."
-                echo "";
-                echo "📚 Commands:";
-                echo "    help      Display this help message.";
-                echo "";
-                echo "Run 'avalon build COMMAND help' for more information on a command.";
+    case ${command} in
+      help)
+        logCommandUsage "avalon build";
+        logCommandDescription "🧙‍♂️ Compile your source code.";
+        logCommandsTitle;
+        log "    help      Display this help message.";
+        logBlankLine;
 
-                exit 0;;
-            *) handleUnknownCommand;;
-        esac
-    fi
+        exit 0;;
+      *) handleUnknownCommand;;
+    esac
+  fi
 }
 
 function handleReleaseCommand() {
-    cicd=$(jq -r ".cicd" .avaloncli.json);
+  if [ ! -f ".avaloncli.json" ]
+  then
+    avalog "${RED}Your artifact is missing its .avaloncli.json configuration file.${END_COLOR}";
 
-    if [[ ${cicd} == "barebones" ]]
+    exit 1;
+  fi
+  
+  cicd=$(jq -r ".cicd" .avaloncli.json);
+
+  if [[ ${cicd} == "barebones" ]]
+  then
+    if [[ $# == 1 ]]
     then
-        if [[ $# == 1 ]]
-        then
-            bash ./scripts/release.sh;
-        else
-            command=${2};
-
-            case ${command} in
-                help) 
-                    echo "Usage:  avalon release";
-                    echo "";
-                    echo "📦 Release your software to the world."
-                    echo "";
-                    echo "📚 Commands:";
-                    echo "    help      Display this help message.";
-                    echo "";
-                    echo "Run 'avalon release COMMAND help' for more information on a command.";
-
-                    exit 0;;
-                *) handleUnknownCommand;;
-            esac
-        fi
+      bash ./scripts/release.sh;
     else
-        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Command not supported for this type of artifact. The${ENDCOLOR} ${BLUE}'avalon release'${ENDCOLOR} ${RED}command is only available for Avalon barebones libraries.${ENDCOLOR}");
-        exit 2;
+      command=${2};
+
+      case ${command} in
+        help)
+          logCommandUsage "avalon release";
+          logCommandDescription "📦" "Release your software to the world.";
+          logCommandsTitle;
+          log "    help      Display this help message.";
+          logBlankLine;
+
+          exit 0;;
+        *) handleUnknownCommand;;
+      esac
     fi
+  else
+    avalog "${RED}Command not supported for this type of artifact. The${END_COLOR} ${BLUE}'avalon release'${END_COLOR} ${RED}command is only available for Avalon barebones libraries.${END_COLOR}";
+
+    exit 2;
+  fi
 }
 
 function assertArtifactType() {
-    artifactType=${1};
+  artifactType=${1};
 
-    if [[ ${artifactType} != "library" && ${artifactType} != "application" ]]
-    then
-        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}An unsupported artifact type '${artifactType}' was provided. Avalon only supported${ENDCOLOR} ${GREEN}'library'${ENDCOLOR} ${RED}or${ENDCOLOR} ${GREEN}'app'${ENDCOLOR} ${RED}as artifact types.${ENDCOLOR}");
-        exit 1;
-    fi
+  if [[ ${artifactType} != "library" && ${artifactType} != "application" ]]
+  then
+    avalog "${RED}An unsupported artifact type '${artifactType}' was provided. Avalon only supported${END_COLOR} ${GREEN}'library'${END_COLOR} ${RED}or${END_COLOR} ${GREEN}'app'${END_COLOR} ${RED}as artifact types.${END_COLOR}";
+
+    exit 1;
+  fi
 }
 
 function assertArtifactName() {
-    artifactName=${1};
+  artifactName=${1};
 
-    if [[ -z ${artifactName} ]]
-    then
-        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}A name for the library is required.${ENDCOLOR}");
-        exit 1;
-    fi
+  if [[ -z ${artifactName} ]]
+  then
+    avalog "${RED}A name for the library is required.${END_COLOR}";
+
+    exit 1;
+  fi
 }
 
 function rollback() {
-    artifactName=${1};
-    imageName="${artifactName}-image";
-    containerName="${artifactName}-container";
-    sourceVolumeName="${artifactName}-source";
+  artifactName=${1};
+  imageName="${artifactName}-image";
+  containerName="${artifactName}-container";
+  sourceVolumeName="${artifactName}-source";
 
-    gh repo delete ${artifactName};
-    docker container rm "${containerName}" &> /dev/null;
-    docker volume rm "${sourceVolumeName}" &> /dev/null;
-    docker image rm "${imageName}" &> /dev/null;
-    aws cloudformation delete-stack --stack-name=${artifactName};
-    rm -rf ${artifactName};
+  gh repo delete ${artifactName};
+  docker container rm "${containerName}" &> /dev/null;
+  docker volume rm "${sourceVolumeName}" &> /dev/null;
+  docker image rm "${imageName}" &> /dev/null;
+  aws cloudformation delete-stack --stack-name=${artifactName};
+  rm -rf ${artifactName};
 }
 
 function createLibraryWithNoCiCd() {
-    # Parameters.
-    artifactName=${1};
-    cicd=${2};
-    repositoryUrl=${3};
+  # Parameters.
+  artifactName=${1};
+  cicd=${2};
+  repositoryUrl=${3};
 
-    # Docker - general.
-    imageName="${artifactName}-image";
-    dockerfilePath="${AVALON_PATH}/docker/libraries/${cicd}.Dockerfile";
-    containerName="${artifactName}-container";
+  # Docker - general.
+  imageName="${artifactName}-image";
+  dockerfilePath="${AVALON_PATH}/docker/libraries/${cicd}.Dockerfile";
+  containerName="${artifactName}-container";
 
-    # Docker - Node modules volume.
-    nodeModulesVolumeName="${artifactName}-node_modules";
-    nodeModulesContainerPath="/node_modules";
+  # Docker - Node modules volume.
+  nodeModulesVolumeName="${artifactName}-node_modules";
+  nodeModulesContainerPath="/node_modules";
 
-    # Docker - Source Code.
-    sourceVolumeName="${artifactName}-source";
-    sourceCodeContainerPath="/avalon-project";
+  # Docker - Source Code.
+  sourceVolumeName="${artifactName}-source";
+  sourceCodeContainerPath="/avalon-project";
 
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Bootstrapping a new TypeScript library...${ENDCOLOR}");
+  avalog "${GREEN}Bootstrapping a new TypeScript library...${END_COLOR}";
 
-    # Pre-execution cleanup
-    docker container rm ${containerName} &> /dev/null;
-    docker volume rm ${sourceVolumeName} &> /dev/null;
-    docker image rm ${imageName} &> /dev/null;
+  # Pre-execution cleanup
+  docker container rm ${containerName} &> /dev/null;
+  docker volume rm ${sourceVolumeName} &> /dev/null;
+  docker image rm ${imageName} &> /dev/null;
 
-    # Create an image to run a "create library" command.
-    docker image build \
-        --build-arg PROJECT_NAME=${artifactName} \
-        --build-arg YEAR=${CURRENT_YEAR} \
-        --build-arg AUTHOR_NAME=${AUTHOR_NAME} \
-        --file ${dockerfilePath} \
-        --tag ${imageName} \
-        ${AVALON_PATH} || \
-        {
-            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while creating an image to run a 'create library' command.${ENDCOLOR}");
-            rollback ${artifactName};
-            exit 1;
-        };
-
-    # Run the "create library" command container.
-    docker container run \
-        --interactive \
-        --tty \
-        -v ${nodeModulesVolumeName}:${nodeModulesContainerPath} \
-        -v ${sourceVolumeName}:${sourceCodeContainerPath} \
-        --name ${containerName} \
-        ${imageName} \
-        || {
-            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while running a 'create library' container command.${ENDCOLOR}");
-            rollback ${artifactName};
-            exit 1;
-        };
-
-    # Copy the contents of the source code volume into a new `library` directory.
-    docker cp ${containerName}:${sourceCodeContainerPath} "./${artifactName}" || \
-    { 
-        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while copying the contents of the source code volume into a new `library` directory.${ENDCOLOR}");
+  # Create an image to run a "create library" command.
+  docker image build \
+    --build-arg PROJECT_NAME=${artifactName} \
+    --build-arg YEAR=${CURRENT_YEAR} \
+    --build-arg AUTHOR_NAME=${AUTHOR_NAME} \
+    --file ${dockerfilePath} \
+    --tag ${imageName} \
+    ${AVALON_PATH} || \
+    {
+        avalog "${RED}Bootstrap Error. Failed while creating an image to run a 'create library' command.${END_COLOR}";
         rollback ${artifactName};
+
         exit 1;
     };
 
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Setting up version control...${ENDCOLOR}");
+  # Run the "create library" command container.
+  docker container run \
+    --interactive \
+    --tty \
+    -v ${nodeModulesVolumeName}:${nodeModulesContainerPath} \
+    -v ${sourceVolumeName}:${sourceCodeContainerPath} \
+    --name ${containerName} \
+    ${imageName} \
+    || {
+        avalog "${RED}Bootstrap Error. Failed while running a 'create library' container command.${END_COLOR}";
+        rollback ${artifactName};
 
-    # Setup version control.
-    cd ${artifactName};
-    git init;
-    git add --all;
-    git commit -m "Initial commit from Avalon v${AVALON_VERSION}";
-    git remote add origin ${repositoryUrl};
-    git push -u origin main;
-    git checkout -b dev;
-    git push -u origin dev;
+        exit 1;
+    };
 
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Cleaning up...${ENDCOLOR}");
+  # Copy the contents of the source code volume into a new `library` directory.
+  docker cp ${containerName}:${sourceCodeContainerPath} "./${artifactName}" || \
+    {
+      avalog "${RED}Bootstrap Error. Failed while copying the contents of the source code volume into a new `library` directory.${END_COLOR}";
+      rollback ${artifactName};
 
-    # Post-execution cleanup.
-    docker volume rm ${sourceVolumeName} &> /dev/null;
-    docker container rm ${containerName} &> /dev/null;
-    docker image rm ${imageName} &> /dev/null;
+      exit 1;
+    };
 
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Success!${ENDCOLOR} Bootstrapped ${BLUE}${artifactName}${ENDCOLOR} at \"${BLUE}$(pwd)/${artifactName}.\"${ENDCOLOR}")
+  avalog "${GREEN}Setting up version control...${END_COLOR}";
 
-    successMessage="
-    ℹ️  Inside that directory, you can run several commands from the ${BLUE}scripts${ENDCOLOR} directory:
+  # Setup version control.
+  cd ${artifactName};
+  git init;
+  git add --all;
+  git commit -m "Initial commit from Avalon v${AVALON_VERSION}";
+  git remote add origin ${repositoryUrl};
+  git push -u origin main;
+  git checkout -b dev;
+  git push -u origin dev;
 
-        ${BLUE}install${ENDCOLOR}
-        Installs the library dependencies (AKA your node_modules).
+  avalog "${GREEN}Cleaning up...${END_COLOR}";
 
-        ${BLUE}start-development${ENDCOLOR}
-        Compiles your source code using the 🧙‍♂️ TypeScript compiler (https://www.npmjs.com/package/typescript) and re-compiles on changes.
+  # Post-execution cleanup.
+  docker volume rm ${sourceVolumeName} &> /dev/null;
+  docker container rm ${containerName} &> /dev/null;
+  docker image rm ${imageName} &> /dev/null;
 
-        ${BLUE}test${ENDCOLOR}
-        Starts the 🃏 Jest (https://jestjs.io) test runner.
+  avalog "${GREEN}Success!${END_COLOR} Bootstrapped ${BLUE}${artifactName}${END_COLOR} at ${BLUE}\"$(pwd)/${artifactName}\"${END_COLOR}.";
+  logBlankLine;
+  log "   ℹ️  Inside that directory, you can run several commands from the ${BLUE}scripts${END_COLOR} directory:";
+  logBlankLine;
+  log "        ${BLUE}install${END_COLOR}";
+  log "        Installs the library dependencies (AKA your node_modules).";
+  logBlankLine;
+  log "        ${BLUE}start-development${END_COLOR}";
+  log "        Compiles your source code using the 🧙‍♂️ TypeScript compiler (https://www.npmjs.com/package/typescript) and re-compiles on changes.";
+  logBlankLine;
+  log "        ${BLUE}test${END_COLOR}";
+  log "        Starts the 🃏 Jest (https://jestjs.io) test runner.";
+  logBlankLine;
+  log "        ${BLUE}watch-tests${END_COLOR}";
+  log "        Starts the 🃏 Jest (https://jestjs.io) test runner and watches for changes.";
+  logBlankLine;
+  log "        ${BLUE}format${END_COLOR}";
+  log "        Formats your source code using 💅 Prettier (https://prettier.io).";
+  logBlankLine;
+  log "        ${BLUE}build${END_COLOR}";
+  log "        Compiles your source code using the 🧙‍♂️ TypeScript compiler (https://www.npmjs.com/package/typescript).";
+  logBlankLine;
+  log "        ${BLUE}release${END_COLOR}";
+  log "        Prompts your 📦 npm (https://www.npmjs.com) credentials to publish your package.";
+  logBlankLine;
+  log "   🚏 Additionally, a new set of resources was created:";
+  logBlankLine;
+  log "        🐙 Your artifact's GitHub repository is: ${repositoryUrl}.";
+  logBlankLine;
+  log "   💡 We suggest that you start by typing:";
+  log "        ${BLUE}cd${END_COLOR} ${artifactName}";
+  log "        ${BLUE}bash${END_COLOR} scripts/start-development.sh";
+  logBlankLine;
+  log "   🍻 Happy hacking!";
+  logBlankLine;
 
-        ${BLUE}watch-tests${ENDCOLOR}
-        Starts the 🃏 Jest (https://jestjs.io) test runner and watches for changes.
-
-        ${BLUE}format${ENDCOLOR}
-        Formats your source code using 💅 Prettier (https://prettier.io).
-
-        ${BLUE}build${ENDCOLOR}
-        Compiles your source code using the 🧙‍♂️ TypeScript compiler (https://www.npmjs.com/package/typescript).
-
-        ${BLUE}release${ENDCOLOR}
-        Prompts your 📦 npm (https://www.npmjs.com) credentials to publish your package.
-
-    🚏 Additionally, a new set of resources was created:
-
-        🐙 Your artifact's GitHub repository is: ${repositoryUrl}.
-
-    💡 We suggest that you start by typing:
-        ${BLUE}cd${ENDCOLOR} ${1}
-        ${BLUE}bash${ENDCOLOR} scripts/start-development.sh
-
-    🍻 Happy hacking!
-";
-
-    printf "${successMessage}";
-    exit 0;
+  exit 0;
 }
 
 function createLibraryWithGitHubCiCd() {
-    # Parameters.
-    artifactName=${1};
-    cicd=${2};
-    repositoryUrl=${3};
+  # Parameters.
+  artifactName=${1};
+  cicd=${2};
+  repositoryUrl=${3};
 
-    # Docker - general.
-    imageName="${artifactName}-image";
-    dockerfilePath="${AVALON_PATH}/docker/libraries/${cicd}.Dockerfile";
-    containerName="${artifactName}-container";
+  # Docker - general.
+  imageName="${artifactName}-image";
+  dockerfilePath="${AVALON_PATH}/docker/libraries/${cicd}.Dockerfile";
+  containerName="${artifactName}-container";
 
-    # Docker - Node modules volume.
-    nodeModulesVolumeName="${artifactName}-node_modules";
-    nodeModulesContainerPath="/node_modules";
+  # Docker - Node modules volume.
+  nodeModulesVolumeName="${artifactName}-node_modules";
+  nodeModulesContainerPath="/node_modules";
 
-    # Docker - Source Code.
-    sourceVolumeName="${artifactName}-source";
-    sourceCodeContainerPath="/avalon-project";
+  # Docker - Source Code.
+  sourceVolumeName="${artifactName}-source";
+  sourceCodeContainerPath="/avalon-project";
 
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Bootstrapping a new TypeScript library with a GitHub Actions CI/CD pipeline...${ENDCOLOR}");
+  avalog "${GREEN}Bootstrapping a new TypeScript library with a GitHub Actions CI/CD pipeline...${END_COLOR}";
 
-    # Pre-execution cleanup
-    docker container rm ${containerName} &> /dev/null;
-    docker volume rm ${sourceVolumeName} &> /dev/null;
-    docker image rm ${imageName} &> /dev/null;
+  # Pre-execution cleanup
+  docker container rm ${containerName} &> /dev/null;
+  docker volume rm ${sourceVolumeName} &> /dev/null;
+  docker image rm ${imageName} &> /dev/null;
 
-    # Create an image to run a "create library" command.
-    docker image build \
-        --build-arg PROJECT_NAME=${artifactName} \
-        --build-arg YEAR=${CURRENT_YEAR} \
-        --build-arg AUTHOR_NAME=${AUTHOR_NAME} \
-        --file ${dockerfilePath} \
-        --tag ${imageName} \
-        ${AVALON_PATH} || \
-        {
-            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while creating an image to run a 'create library' command.${ENDCOLOR}");
-            rollback ${artifactName};
-            exit 1;
-        };
-
-    # Run the "create library" command container.
-    docker container run \
-        --interactive \
-        --tty \
-        -v ${nodeModulesVolumeName}:${nodeModulesContainerPath} \
-        -v ${sourceVolumeName}:${sourceCodeContainerPath} \
-        --name ${containerName} \
-        ${imageName} \
-        || {
-            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while running a 'create library' container command.${ENDCOLOR}");
-            rollback ${artifactName};
-            exit 1;
-        };
-
-    # Copy the contents of the source code volume into a new `library` directory.
-    docker cp ${containerName}:${sourceCodeContainerPath} "./${artifactName}" || \
-    { 
-        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while copying the contents of the source code volume into a new `library` directory.${ENDCOLOR}");
+  # Create an image to run a "create library" command.
+  docker image build \
+    --build-arg PROJECT_NAME=${artifactName} \
+    --build-arg YEAR=${CURRENT_YEAR} \
+    --build-arg AUTHOR_NAME=${AUTHOR_NAME} \
+    --file ${dockerfilePath} \
+    --tag ${imageName} \
+    ${AVALON_PATH} || \
+    {
+        avalog "${RED} Bootstrap Error. Failed while creating an image to run a 'create library' command.${END_COLOR}";
         rollback ${artifactName};
+
         exit 1;
     };
 
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Setting up version control...${ENDCOLOR}");
+  # Run the "create library" command container.
+  docker container run \
+    --interactive \
+    --tty \
+    -v ${nodeModulesVolumeName}:${nodeModulesContainerPath} \
+    -v ${sourceVolumeName}:${sourceCodeContainerPath} \
+    --name ${containerName} \
+    ${imageName} \
+    || {
+        avalog "${RED} Bootstrap Error. Failed while running a 'create library' container command.${END_COLOR}";
+        rollback ${artifactName};
 
-    # Setup version control.
-    cd ${artifactName};
-    git init;
-    git add --all;
-    git commit -m "Initial commit from Avalon v${AVALON_VERSION}";
-    git remote add origin ${repositoryUrl};
-    git push -u origin main;
-    git checkout -b dev;
-    git push -u origin dev;
-    cd ..;
+        exit 1;
+    };
 
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Cleaning up...${ENDCOLOR}");
+  # Copy the contents of the source code volume into a new `library` directory.
+  docker cp ${containerName}:${sourceCodeContainerPath} "./${artifactName}" || \
+    {
+        avalog "${RED} Bootstrap Error. Failed while copying the contents of the source code volume into a new `library` directory.${END_COLOR}";
+        rollback ${artifactName};
+  
+        exit 1;
+    };
 
-    # Post-execution cleanup.
-    docker volume rm ${sourceVolumeName} &> /dev/null;
-    docker container rm ${containerName} &> /dev/null;
-    docker image rm ${imageName} &> /dev/null;
+  avalog "${GREEN}Setting up version control...${END_COLOR}";
 
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Success!${ENDCOLOR} Bootstrapped ${BLUE}${artifactName}${ENDCOLOR} at \"${BLUE}$(pwd)/${artifactName}.\"${ENDCOLOR}")
+  # Setup version control.
+  cd ${artifactName};
+  git init;
+  git add --all;
+  git commit -m "Initial commit from Avalon v${AVALON_VERSION}";
+  git remote add origin ${repositoryUrl};
+  git push -u origin main;
+  git checkout -b dev;
+  git push -u origin dev;
+  cd ..;
 
-    successMessage="
-    ℹ️  Inside that directory, you can run several commands from the ${BLUE}scripts${ENDCOLOR} directory:
+  avalog "${GREEN}Cleaning up...${END_COLOR}";
 
-        ${BLUE}install${ENDCOLOR}
-        Installs the library dependencies (AKA your node_modules).
+  # Post-execution cleanup.
+  docker volume rm ${sourceVolumeName} &> /dev/null;
+  docker container rm ${containerName} &> /dev/null;
+  docker image rm ${imageName} &> /dev/null;
 
-        ${BLUE}start-development${ENDCOLOR}
-        Compiles your source code using the 🧙‍♂️ TypeScript compiler (https://www.npmjs.com/package/typescript) and re-compiles on changes.
+  avalog "${GREEN}Success!${END_COLOR} Bootstrapped ${BLUE}${artifactName}${END_COLOR} at ${BLUE}\"$(pwd)/${artifactName}\"${END_COLOR}.";
+  logBlankLine;
+  log "   ℹ️  Inside that directory, you can run several commands from the ${BLUE}scripts${END_COLOR} directory:";
+  logBlankLine;
+  log "        ${BLUE}install${END_COLOR}";
+  log "        Installs the library dependencies (AKA your node_modules).";
+  logBlankLine;
+  log "        ${BLUE}start-development${END_COLOR}";
+  log "        Compiles your source code using the 🧙‍♂️ TypeScript compiler (https://www.npmjs.com/package/typescript) and re-compiles on changes.";
+  logBlankLine;
+  log "        ${BLUE}test${END_COLOR}";
+  log "        Starts the 🃏 Jest (https://jestjs.io) test runner.";
+  logBlankLine;
+  log "        ${BLUE}watch-tests${END_COLOR}";
+  log "        Starts the 🃏 Jest (https://jestjs.io) test runner and watches for changes.";
+  logBlankLine;
+  log "        ${BLUE}format${END_COLOR}";
+  log "        Formats your source code using 💅 Prettier (https://prettier.io).";
+  logBlankLine;
+  log "        ${BLUE}build${END_COLOR}";
+  log "        Compiles your source code using the 🧙‍♂️ TypeScript compiler (https://www.npmjs.com/package/typescript).";
+  logBlankLine;
+  log "   🚏 Additionally, a new set of resources was created:";
+  logBlankLine;
+  log "        🐙 Your artifact's GitHub repository is: ${repositoryUrl}.";
+  logBlankLine;
+  log "   💡 We suggest that you start by typing:";
+  log "        ${BLUE}cd${END_COLOR} ${artifactName}";
+  log "        ${BLUE}bash${END_COLOR} scripts/start-development.sh";
+  logBlankLine;
+  log "   🍻 Happy hacking!";
+  logBlankLine;
 
-        ${BLUE}test${ENDCOLOR}
-        Starts the 🃏 Jest (https://jestjs.io) test runner.
-
-        ${BLUE}watch-tests${ENDCOLOR}
-        Starts the 🃏 Jest (https://jestjs.io) test runner and watches for changes.
-
-        ${BLUE}format${ENDCOLOR}
-        Formats your source code using 💅 Prettier (https://prettier.io).
-
-        ${BLUE}build${ENDCOLOR}
-        Compiles your source code using the 🧙‍♂️ TypeScript compiler (https://www.npmjs.com/package/typescript).
-
-    🚏 Additionally, a new set of resources was created:
-
-        🐙 Your artifact's GitHub repository is: ${repositoryUrl}.
-
-    💡 We suggest that you start by typing:
-        ${BLUE}cd${ENDCOLOR} ${1}
-        ${BLUE}bash${ENDCOLOR} scripts/start-development.sh
-
-    🍻 Happy hacking!
-";
-
-    printf "${successMessage}";
-    exit 0;
+  exit 0;
 }
 
 function createLibraryWithAwsCiCd() {
-    # Parameters.
-    artifactName=${1};
-    cicd=${2};
-    repositoryUrl=${3};
+  # Parameters.
+  artifactName=${1};
+  cicd=${2};
+  repositoryUrl=${3};
 
-    # Docker - general.
-    imageName="${artifactName}-image";
-    dockerfilePath="${AVALON_PATH}/docker/libraries/${cicd}.Dockerfile";
-    containerName="${artifactName}-container";
+  # Docker - general.
+  imageName="${artifactName}-image";
+  dockerfilePath="${AVALON_PATH}/docker/libraries/${cicd}.Dockerfile";
+  containerName="${artifactName}-container";
 
-    # Docker - Node modules volume.
-    nodeModulesVolumeName="${artifactName}-node_modules";
-    nodeModulesContainerPath="/node_modules";
+  # Docker - Node modules volume.
+  nodeModulesVolumeName="${artifactName}-node_modules";
+  nodeModulesContainerPath="/node_modules";
 
-    # Docker - Source Code.
-    sourceVolumeName="${artifactName}-source";
-    sourceCodeContainerPath="/avalon-project";
+  # Docker - Source Code.
+  sourceVolumeName="${artifactName}-source";
+  sourceCodeContainerPath="/avalon-project";
 
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Bootstrapping a new TypeScript library with an AWS CI/CD pipeline...${ENDCOLOR}");
+  avalog "${GREEN}Bootstrapping a new TypeScript library with an AWS CI/CD pipeline...${END_COLOR}";
 
-    # Pre-execution cleanup.
-    docker container rm ${containerName} &> /dev/null;
-    docker volume rm ${sourceVolumeName} &> /dev/null;
-    docker image rm ${imageName} &> /dev/null;
+  # Pre-execution cleanup.
+  docker container rm ${containerName} &> /dev/null;
+  docker volume rm ${sourceVolumeName} &> /dev/null;
+  docker image rm ${imageName} &> /dev/null;
 
-    # Retrieve the ARN of your npm authorization token residing in AWS Secrets Manager.
-    AWS_NPM_AUTH_TOKEN_SECRET_ARN=$(aws secretsmanager get-secret-value --secret-id=${AWS_NPM_AUTH_TOKEN_SECRET_NAME} --query="ARN" --output text) || \
-        {
-            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed to retrieve the ARN of your npm authorization token. Please make sure you have a secret with the name \"${AWS_NPM_AUTH_TOKEN_SECRET_NAME}\" stored in your AWS Secrets Manager.${ENDCOLOR}");
-            rollback ${artifactName};
-            exit 1;
-        };
-
-    # Create an image to run a "create library" command.
-    docker image build \
-        --build-arg PROJECT_NAME=${artifactName} \
-        --build-arg YEAR=${CURRENT_YEAR} \
-        --build-arg AUTHOR_NAME=${AUTHOR_NAME} \
-        --build-arg AWS_NPM_AUTH_TOKEN_SECRET_ARN=${AWS_NPM_AUTH_TOKEN_SECRET_ARN} \
-        --file ${dockerfilePath} \
-        --tag ${imageName} \
-        ${AVALON_PATH} || \
-        {
-            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while creating an image to run a 'create library' command.${ENDCOLOR}");
-            rollback ${artifactName};
-            exit 1;
-        };
-
-    # Run the "create library" command container.
-    docker container run \
-        --interactive \
-        --tty \
-        -v ${nodeModulesVolumeName}:${nodeModulesContainerPath} \
-        -v ${sourceVolumeName}:${sourceCodeContainerPath} \
-        --name ${containerName} \
-        ${imageName} \
-        || {
-            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while running a 'create library' container command.${ENDCOLOR}");
-            rollback ${artifactName};
-            exit 1;
-        };
-
-    # Copy the contents of the source code volume into a new `library` directory.
-    docker cp ${containerName}:${sourceCodeContainerPath} "./${artifactName}" || \
-    { 
-        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while copying the contents of the source code volume into a new `library` directory.${ENDCOLOR}");
+  # Retrieve the ARN of your npm authorization token residing in AWS Secrets Manager.
+  awsNpmAuthTokenSecretArn=$(aws secretsmanager get-secret-value --secret-id=${AWS_NPM_AUTH_TOKEN_SECRET_NAME} --query="ARN" --output text) || \
+    {
+        avalog "${RED} Bootstrap Error. Failed to retrieve the ARN of your npm authorization token. Please make sure you have a secret with the name \"${AWS_NPM_AUTH_TOKEN_SECRET_NAME}\" stored in your AWS Secrets Manager.${END_COLOR}";
         rollback ${artifactName};
+
         exit 1;
     };
 
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Setting up version control...${ENDCOLOR}");
+  # Create an image to run a "create library" command.
+  docker image build \
+    --build-arg PROJECT_NAME=${artifactName} \
+    --build-arg YEAR=${CURRENT_YEAR} \
+    --build-arg AUTHOR_NAME=${AUTHOR_NAME} \
+    --build-arg AWS_NPM_AUTH_TOKEN_SECRET_ARN=${awsNpmAuthTokenSecretArn} \
+    --file ${dockerfilePath} \
+    --tag ${imageName} \
+    ${AVALON_PATH} || \
+    {
+        avalog "${RED} Bootstrap Error. Failed while creating an image to run a 'create library' command.${END_COLOR}";
+        rollback ${artifactName};
 
-    # Setup version control.
-    cd ${artifactName};
-    git init;
-    git add --all;
-    git commit -m "Initial commit from Avalon v${AVALON_VERSION}";
-    git remote add origin ${repositoryUrl};
-    git push -u origin main;
-    git checkout -b dev;
-    git push -u origin dev;
+        exit 1;
+    };
 
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Creating AWS CI/CD infrastructure...${ENDCOLOR}");
+  # Run the "create library" command container.
+  docker container run \
+    --interactive \
+    --tty \
+    -v ${nodeModulesVolumeName}:${nodeModulesContainerPath} \
+    -v ${sourceVolumeName}:${sourceCodeContainerPath} \
+    --name ${containerName} \
+    ${imageName} \
+    || {
+        avalog "${RED} Bootstrap Error. Failed while running a 'create library' container command.${END_COLOR}";
+        rollback ${artifactName};
 
-    # Create CI/CD infrastructure.
-    aws cloudformation deploy \
-        --template-file ./aws/ci-cd.template.json \
-        --stack-name ${artifactName} \
-        --capabilities CAPABILITY_NAMED_IAM \
-        --parameter-overrides GitHubRepositoryUrl=${repositoryUrl} NpmAuthTokenSecretArn=${AWS_NPM_AUTH_TOKEN_SECRET_ARN} || \
-        {
-            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while CI/CD pipeline in AWS.${ENDCOLOR}");
-            cd ..;
-            rollback ${artifactName};
-            exit 1;
-        };
+        exit 1;
+    };
 
-    cd ..;
+  # Copy the contents of the source code volume into a new `library` directory.
+  docker cp ${containerName}:${sourceCodeContainerPath} "./${artifactName}" || \
+    {
+        avalog "${RED} Bootstrap Error. Failed while copying the contents of the source code volume into a new `library` directory.${END_COLOR}";
+        rollback ${artifactName};
 
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Cleaning up...${ENDCOLOR}");
+        exit 1;
+    };
 
-    # Post-execution cleanup.
-    docker volume rm ${sourceVolumeName} &> /dev/null;
-    docker container rm ${containerName} &> /dev/null;
-    docker image rm ${imageName} &> /dev/null;
+  avalog "${GREEN}Setting up version control...${END_COLOR}";
 
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Success!${ENDCOLOR} Bootstrapped ${BLUE}${artifactName}{ENDCOLOR} at \"${BLUE}$(pwd)/${artifactName}.\"${ENDCOLOR}")
+  # Setup version control.
+  cd ${artifactName};
+  git init;
+  git add --all;
+  git commit -m "Initial commit from Avalon v${AVALON_VERSION}";
+  git remote add origin ${repositoryUrl};
+  git push -u origin main;
+  git checkout -b dev;
+  git push -u origin dev;
 
-    awsRegion=$(aws configure get region);
-    awsAccountId=$(aws sts get-caller-identity --query "Account" --output text);
+  avalog "${GREEN}Creating AWS CI/CD infrastructure...${END_COLOR}";
 
-    successMessage="
-    ℹ️  Inside that directory, you can run several commands from the ${BLUE}scripts${ENDCOLOR} directory:
+  # Create CI/CD infrastructure.
+  aws cloudformation deploy \
+    --template-file ./aws/ci-cd.template.json \
+    --stack-name ${artifactName} \
+    --capabilities CAPABILITY_NAMED_IAM \
+    --parameter-overrides GitHubRepositoryUrl=${repositoryUrl} NpmAuthTokenSecretArn=${awsNpmAuthTokenSecretArn} || \
+    {
+        avalog "${RED} Bootstrap Error. Failed while CI/CD pipeline in AWS.${END_COLOR}";
+        cd ..;
+        rollback ${artifactName};
 
-        ${BLUE}install${ENDCOLOR}
-        Installs the library dependencies (AKA your node_modules).
+        exit 1;
+    };
 
-        ${BLUE}start-development${ENDCOLOR}
-        Compiles your source code using the 🧙‍♂️ TypeScript compiler (https://www.npmjs.com/package/typescript) and re-compiles on changes.
+  cd ..;
 
-        ${BLUE}test${ENDCOLOR}
-        Starts the 🃏 Jest (https://jestjs.io) test runner.
+  avalog "${GREEN}Cleaning up...${END_COLOR}";
 
-        ${BLUE}watch-tests${ENDCOLOR}
-        Starts the 🃏 Jest (https://jestjs.io) test runner and watches for changes.
+  # Post-execution cleanup.
+  docker volume rm ${sourceVolumeName} &> /dev/null;
+  docker container rm ${containerName} &> /dev/null;
+  docker image rm ${imageName} &> /dev/null;
 
-        ${BLUE}format${ENDCOLOR}
-        Formats your source code using 💅 Prettier (https://prettier.io).
+  awsRegion=$(aws configure get region);
+  awsAccountId=$(aws sts get-caller-identity --query "Account" --output text);
 
-        ${BLUE}build${ENDCOLOR}
-        Compiles your source code using the 🧙‍♂️ TypeScript compiler (https://www.npmjs.com/package/typescript).
+  avalog "${GREEN}Success!${END_COLOR} Bootstrapped ${BLUE}${artifactName}{END_COLOR} at \"${BLUE}$(pwd)/${artifactName}\"${END_COLOR}.";
+  logBlankLine;
+  log "   ℹ️  Inside that directory, you can run several commands from the ${BLUE}scripts${END_COLOR} directory:";
+  logBlankLine;
+  log "        ${BLUE}install${END_COLOR}";
+  log "        Installs the library dependencies (AKA your node_modules).";
+  logBlankLine;
+  log "        ${BLUE}start-development${END_COLOR}";
+  log "        Compiles your source code using the 🧙‍♂️ TypeScript compiler (https://www.npmjs.com/package/typescript) and re-compiles on changes.";
+  logBlankLine;
+  log "        ${BLUE}test${END_COLOR}";
+  log "        Starts the 🃏 Jest (https://jestjs.io) test runner.";
+  logBlankLine;
+  log "        ${BLUE}watch-tests${END_COLOR}";
+  log "        Starts the 🃏 Jest (https://jestjs.io) test runner and watches for changes.";
+  logBlankLine;
+  log "        ${BLUE}format${END_COLOR}";
+  log "        Formats your source code using 💅 Prettier (https://prettier.io).";
+  logBlankLine;
+  log "        ${BLUE}build${END_COLOR}";
+  log "        Compiles your source code using the 🧙‍♂️ TypeScript compiler (https://www.npmjs.com/package/typescript).";
+  logBlankLine;
+  log "   🚏 Additionally, a new set of resources was created:";
+  logBlankLine;
+  log "        🐙 Your artifact's GitHub repository is: ${repositoryUrl}.";
+  logBlankLine;
+  log "        ☁️  Your CI CodeBuild project is: https://${awsRegion}.console.aws.amazon.com/codesuite/codebuild/${awsAccountId}/projects/${artifactName}-DevelopmentBuild/history?region=${awsRegion}.";
+  logBlankLine;
+  log "        ☁️  Your CD CodeBuild project is: https://${awsRegion}.console.aws.amazon.com/codesuite/codebuild/${awsAccountId}/projects/${artifactName}-ProductionBuild/history?region=${awsRegion}.";
+  logBlankLine;
+  log "   💡 We suggest that you start by typing:";
+  log "        ${BLUE}cd${END_COLOR} ${artifactName}";
+  log "        ${BLUE}bash${END_COLOR} scripts/start-development.sh";
+  logBlankLine;
+  log "   🍻 Happy hacking!";
+  logBlankLine;
 
-    🚏 Additionally, a new set of resources was created:
-
-        🐙 Your artifact's GitHub repository is: ${repositoryUrl}.
-
-        ☁️  Your CI CodeBuild project is: https://${awsRegion}.console.aws.amazon.com/codesuite/codebuild/${awsAccountId}/projects/${artifactName}-DevelopmentBuild/history?region=${awsRegion}.
-
-        ☁️  Your CD CodeBuild project is: https://${awsRegion}.console.aws.amazon.com/codesuite/codebuild/${awsAccountId}/projects/${artifactName}-ProductionBuild/history?region=${awsRegion}.
-
-    💡 We suggest that you start by typing:
-        ${BLUE}cd${ENDCOLOR} ${1}
-        ${BLUE}bash${ENDCOLOR} scripts/start-development.sh
-
-    🍻 Happy hacking!
-";
-
-    printf "${successMessage}";
-    exit 0;
+  exit 0;
 }
 
 function handleNewCommand() {
-    artifactName=${2};
+  artifactName=${2};
 
-    # Defaults.
-    artifactType=${LIBRARY_ARTIFACT_TYPE};
-    cicd=${GITHUB_CI_CD};
+  # Defaults.
+  artifactType=${LIBRARY_ARTIFACT_TYPE};
+  cicd=${GITHUB_CI_CD};
 
-    for option in "$@"
-    do
-        case ${option} in
-            help)
-                echo "Usage:  avalon new create ARTIFACT_NAME [OPTIONS] [COMMAND]";
-                echo ""
-                echo "🏗  Create software artifacts."
-                echo ""
-                echo "🏳  Options:";
-                echo "    --artifact=string      Sets the software artifact type (\"library\"|\"application\").";
-                echo "    --ci-cd=string         Sets the continous integration configuration (\"barebones\"|\"github-actions\"|\"aws\").";
-                echo ""
-                echo "📚 Commands:";
-                echo "    help      Display this help message.";
-                echo ""
-                echo "Run 'avalon new COMMAND help' for more information on a command.";
+  for option in "$@"
+  do
+    case ${option} in
+      help)
+        logCommandUsage "avalon new create ARTIFACT_NAME [OPTIONS] [COMMAND]";
+        logCommandDescription "🏗" "Create software artifacts.";
+        logOptionsTitle;
+        log "    --artifact=string      Sets the software artifact type (\"library\"|\"application\").";
+        log "    --ci-cd=string         Sets the continous integration configuration (\"barebones\"|\"github-actions\"|\"aws\").";
+        logBlankLine;
+        logCommandsTitle;
+        log "    help      Display this help message.";
+        logBlankLine;
 
-                exit 0;;
-            "--artifact=library") artifactType=${LIBRARY_ARTIFACT_TYPE};;
-            "--ci-cd=barebones") cicd=${NO_CI_CD};;
-            "--ci-cd=github-actions") cicd=${GITHUB_CI_CD};;
-            "--ci-cd=aws") cicd=${AWS_CI_CD};;
-            "--"*)
-                echo "${option} is not an Avalon command.";
-                echo "See 'avalon new help'";
+        exit 0;;
+      "--artifact=library") artifactType=${LIBRARY_ARTIFACT_TYPE};;
+      "--ci-cd=barebones") cicd=${NO_CI_CD};;
+      "--ci-cd=github-actions") cicd=${GITHUB_CI_CD};;
+      "--ci-cd=aws") cicd=${AWS_CI_CD};;
+      "--"*)
+        log "${option} is not an Avalon command.";
+        log "See 'avalon new help'";
 
-                exit 1;;
-        esac
-    done
+        exit 1;;
+    esac
+  done
 
-    assertArtifactName ${artifactName};
-    assertArtifactType ${artifactType};
+  assertArtifactName ${artifactName};
+  assertArtifactType ${artifactType};
 
-    gh repo create ${artifactName} --private || \
-        {
-            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while creating a attempting to create GitHub Repository. Make sure GitHub CLI is properly configured with your credentials.${ENDCOLOR}");
-            rollback ${artifactName};
-            exit 1;
-        };
+  gh repo create ${artifactName} --private || \
+    {
+      avalog "${RED} Bootstrap Error. Failed while creating a attempting to create GitHub Repository. Make sure GitHub CLI is properly configured with your credentials.${END_COLOR}";
+      rollback ${artifactName};
 
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Creating new GitHub repository for ${artifactName}...${ENDCOLOR}");
+      exit 1;
+    };
 
-    repositoryUrl=$(gh repo view ${artifactName} --json "url"  --jq ".url");
+  avalog "${GREEN}Creating new GitHub repository for ${artifactName}...${END_COLOR}";
 
-    if [[ ${artifactType} == ${LIBRARY_ARTIFACT_TYPE} ]]
+  repositoryUrl=$(gh repo view ${artifactName} --json "url"  --jq ".url");
+
+  if [[ ${artifactType} == ${LIBRARY_ARTIFACT_TYPE} ]]
+  then
+    if [[ ${cicd} == ${NO_CI_CD} ]]
     then
-        if [[ ${cicd} == ${NO_CI_CD} ]]
-        then
-            createLibraryWithNoCiCd ${artifactName} ${cicd} ${repositoryUrl};
-        elif [[ ${cicd} == ${GITHUB_CI_CD} ]]
-        then
-            createLibraryWithGitHubCiCd ${artifactName} ${cicd} ${repositoryUrl};
-        elif [[ ${cicd} == ${AWS_CI_CD} ]]
-        then
-            createLibraryWithAwsCiCd ${artifactName} ${cicd} ${repositoryUrl};
-        fi
+      createLibraryWithNoCiCd ${artifactName} ${cicd} ${repositoryUrl};
+    elif [[ ${cicd} == ${GITHUB_CI_CD} ]]
+    then
+      createLibraryWithGitHubCiCd ${artifactName} ${cicd} ${repositoryUrl};
+    elif [[ ${cicd} == ${AWS_CI_CD} ]]
+    then
+      createLibraryWithAwsCiCd ${artifactName} ${cicd} ${repositoryUrl};
     fi
+  fi
 }
 
 function handleOpenCommand() {
-    if [[ $# == 1 ]]
-    then
-        echo "Usage:  avalon open COMMAND";
-        echo "";
-        echo "🌐  Browse your resources.";
-        echo "";
-        echo "📚 Commands:";
-        echo "    repo      Navigate to your artifact's GitHub repository in your browser.";
-        echo "    ci        Navigate to your artifact's CodeBuild CI Project in your browser.";
-        echo "    cd        Navigate to your artifact's CodeBuild CD Project in your browser.";
-        echo "    help      Display this help message.";
-        echo "";
-        echo "Run 'avalon open COMMAND help' for more information on a command.";
-        exit 0;
-    else
-        command=${2};
+  if [[ $# == 1 ]]
+  then
+    logCommandUsage "avalon open COMMAND";
+    logCommandDescription "🌐" "Browse your resources.";
+    logCommandsTitle;
+    log "    repo      Navigate to your artifact's GitHub repository in your browser.";
+    log "    ci        Navigate to your artifact's CodeBuild CI Project in your browser.";
+    log "    cd        Navigate to your artifact's CodeBuild CD Project in your browser.";
+    log "    help      Display this help message.";
+    logBlankLine;
 
-        case ${command} in
-            help) 
-                echo "Usage:  avalon open COMMAND";
-                echo "";
-                echo "🌐  Browse your resources.";
-                echo "";
-                echo "📚 Commands:";
-                echo "    repo      Navigate to your artifact's GitHub repository in your browser.";
-                echo "    ci        Navigate to your artifact's CodeBuild CI Project in your browser.";
-                echo "    cd        Navigate to your artifact's CodeBuild CD Project in your browser.";
-                echo "    help      Display this help message.";
-                echo "";
-                echo "Run 'avalon open COMMAND help' for more information on a command.";
-                exit 0;;
-            repo)
-                gh repo view --web;;
-            ci)
-                if [ ! -f ".avaloncli.json" ]
-                then
-                    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Your artifact is missing its .avaloncli.json configuration file.${ENDCOLOR}");
-                    exit 1;
-                fi
+    exit 0;
+  else
+    command=${2};
 
-                artifactName=$(jq -r ".artifactName" .avaloncli.json);
-                cicd=$(jq -r ".cicd" .avaloncli.json);
+    case ${command} in
+      help)
+        logCommandUsage "avalon open COMMAND";
+        logCommandDescription "🌐" "Browse your resources.";
+        logCommandsTitle;
+        log "    repo      Navigate to your artifact's GitHub repository in your browser.";
+        log "    ci        Navigate to your artifact's CodeBuild CI Project in your browser.";
+        log "    cd        Navigate to your artifact's CodeBuild CD Project in your browser.";
+        log "    help      Display this help message.";
+        logBlankLine;
 
-                if [[ ${cicd} == "aws" ]]
-                then
-                    awsRegion=$(aws configure get region) || \
-                    {
-                        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Failed to obtain the AWS region configured for the AWS CLI.${ENDCOLOR}");
-                        exit 1;
-                    };
+        exit 0;;
+      repo)
+        if [ ! -f ".avaloncli.json" ]
+        then
+          avalog "${RED}Your artifact is missing its .avaloncli.json configuration file.${END_COLOR}";
 
-                    awsAccountId=$(aws sts get-caller-identity --query "Account" --output text) || \
-                    {
-                        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Failed to obtain the AWS account id configured for the AWS CLI.${ENDCOLOR}");
-                        exit 1;
-                    };
+          exit 1;
+        fi
+        
+        gh repo view --web &> /dev/null;;
+      ci)
+        if [ ! -f ".avaloncli.json" ]
+        then
+          avalog "${RED}Your artifact is missing its .avaloncli.json configuration file.${END_COLOR}";
 
-                    open "https://${awsRegion}.console.aws.amazon.com/codesuite/codebuild/${awsAccountId}/projects/${artifactName}-DevelopmentBuild/history?region=${awsRegion}";
-                else
-                    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Command not supported for artifacts using this CI/CD pipeline configuration. The${ENDCOLOR} ${BLUE}'avalon open ci'${ENDCOLOR} ${RED}command is only available for artifacts with AWS with a CI/CD pipeline.${ENDCOLOR}");
-                    exit 2;
-                fi
-            ;;
-            cd)
-                artifactName=$(jq -r ".artifactName" .avaloncli.json);
-                cicd=$(jq -r ".cicd" .avaloncli.json);
+          exit 1;
+        fi
 
-                if [[ ${cicd} == "aws" ]]
-                then
-                    awsRegion=$(aws configure get region) || \
-                    {
-                        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Failed to obtain the AWS region configured for the AWS CLI.${ENDCOLOR}");
-                        exit 1;
-                    };
+        artifactName=$(jq -r ".artifactName" .avaloncli.json);
+        cicd=$(jq -r ".cicd" .avaloncli.json);
 
-                    awsAccountId=$(aws sts get-caller-identity --query "Account" --output text) || \
-                    {
-                        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Failed to obtain the AWS account id configured for the AWS CLI.${ENDCOLOR}");
-                        exit 1;
-                    };
+        if [[ ${cicd} == "aws" ]]
+        then
+          awsRegion=$(aws configure get region) || \
+          {
+              avalog "${RED}Failed to obtain the AWS region configured for the AWS CLI.${END_COLOR}";
 
-                    open "https://${awsRegion}.console.aws.amazon.com/codesuite/codebuild/${awsAccountId}/projects/${artifactName}-ProductionBuild/history?region=${awsRegion}";
-                else
-                    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Command not supported for artifacts using this CI/CD pipeline configuration. The${ENDCOLOR} ${BLUE}'avalon open cd'${ENDCOLOR} ${RED}command is only available for artifacts with AWS with a CI/CD pipeline.${ENDCOLOR}");
-                    exit 2;
-                fi
-            ;;
-            *) handleUnknownCommand;;
-        esac
-    fi
+              exit 1;
+          };
+
+          awsAccountId=$(aws sts get-caller-identity --query "Account" --output text) || \
+          {
+              avalog "${RED}Failed to obtain the AWS account id configured for the AWS CLI.${END_COLOR}";
+
+              exit 1;
+          };
+
+          open "https://${awsRegion}.console.aws.amazon.com/codesuite/codebuild/${awsAccountId}/projects/${artifactName}-DevelopmentBuild/history?region=${awsRegion}";
+        else
+          avalog "${RED}Command not supported for artifacts using this CI/CD pipeline configuration. The${END_COLOR} ${BLUE}'avalon open ci'${END_COLOR} ${RED}command is only available for artifacts with AWS with a CI/CD pipeline.${END_COLOR}";
+
+          exit 2;
+        fi
+        ;;
+      cd)
+        if [ ! -f ".avaloncli.json" ]
+        then
+          avalog "${RED}Your artifact is missing its .avaloncli.json configuration file.${END_COLOR}";
+
+          exit 1;
+        fi
+
+        artifactName=$(jq -r ".artifactName" .avaloncli.json);
+        cicd=$(jq -r ".cicd" .avaloncli.json);
+
+        if [[ ${cicd} == "aws" ]]
+        then
+          awsRegion=$(aws configure get region) || \
+          {
+              avalog "${RED}Failed to obtain the AWS region configured for the AWS CLI.${END_COLOR}";
+
+              exit 1;
+          };
+
+          awsAccountId=$(aws sts get-caller-identity --query "Account" --output text) || \
+          {
+              avalog "${RED}Failed to obtain the AWS account id configured for the AWS CLI.${END_COLOR}";
+
+              exit 1;
+          };
+
+          open "https://${awsRegion}.console.aws.amazon.com/codesuite/codebuild/${awsAccountId}/projects/${artifactName}-ProductionBuild/history?region=${awsRegion}";
+        else
+          avalog "${RED}Command not supported for artifacts using this CI/CD pipeline configuration. The${END_COLOR} ${BLUE}'avalon open cd'${END_COLOR} ${RED}command is only available for artifacts with AWS with a CI/CD pipeline.${END_COLOR}";
+
+          exit 2;
+        fi
+      ;;
+      *) handleUnknownCommand;;
+    esac
+  fi
 }
 
 function handleDestroyCommand() {
-    if [[ $# == 1 ]]
-    then
-        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}The name of the artifact is required.${ENDCOLOR}");
-        exit 1;
-    else
-        command=${2};
+  if [[ $# == 1 ]]
+  then
+    avalog "${RED}The name of the artifact is required.${END_COLOR}";
 
-        case ${command} in
-            help) 
-                echo "Usage:  avalon destroy";
-                echo "";
-                echo "🗑  Remove an avalon project form your machine thoroughly (Directories, Containers, Volumes, Repositories and AWS infrastructure).";
-                echo "";
-                echo "📚 Commands:";
-                echo "    help      Display this help message.";
-                echo "";
-                echo "Run 'avalon destroy COMMAND help' for more information on a command.";
+    exit 1;
+  else
+    command=${2};
 
-                exit 0;;
-            *) 
-                artifactName=${2};
-                imageName="${artifactName}-image";
-                containerName="${artifactName}-container";
-                sourceVolumeName="${artifactName}-source";
+    case ${command} in
+      help)
+        logCommandUsage "avalon destroy ARTIFACT_NAME [COMMAND]";
+        logCommandDescription "🗑  Remove an avalon project form your machine thoroughly.";
+        logCommandsTitle;
+        log "    help      Display this help message.";
+        logBlankLine;
 
-                rm -rf ${artifactName};
-                gh repo delete ${artifactName};
-                docker container rm "${containerName}" &> /dev/null;
-                docker volume rm "${sourceVolumeName}" &> /dev/null;
-                docker image rm "${imageName}" &> /dev/null;
-                aws cloudformation delete-stack --stack-name=${artifactName};
-            ;;
-        esac
-    fi
+        exit 0;;
+      *)
+        artifactName=${2};
+        imageName="${artifactName}-image";
+        containerName="${artifactName}-container";
+        sourceVolumeName="${artifactName}-source";
+
+        rm -rf ${artifactName};
+        gh repo delete ${artifactName};
+        docker container rm "${containerName}" &> /dev/null;
+        docker volume rm "${sourceVolumeName}" &> /dev/null;
+        docker image rm "${imageName}" &> /dev/null;
+        aws cloudformation delete-stack --stack-name=${artifactName};
+        exit 0;;
+    esac
+  fi
 }
 
 function handleUnknownCommand() {
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Command not supported. Try using${ENDCOLOR} ${BLUE}'avalon help'${ENDCOLOR} ${RED}command.${ENDCOLOR}");
-    exit 2;
+  avalog "${RED}Command not supported. Try using${END_COLOR} ${BLUE}'avalon help'${END_COLOR} ${RED}command.${END_COLOR}";
+
+  exit 2;
 }
 
 function bootstrap() {
-    if [[ $# == 0 ]]
-    then
-        handleHelpCommand;
-    fi
+  if [[ $# == 0 ]]
+  then
+    handleHelpCommand;
+  fi
 
-    command=${1};
+  command=${1};
 
-    case ${command} in
-        help) handleHelpCommand $@;;
-        install) handleInstallCommand $@;;
-        develop) handleDevelopCommand $@;;
-        test) handleTestCommand ${2};;
-        watch-tests) handleWatchTestsCommand $@;;
-        format) handleFormatCommand $@;;
-        build) handleBuildCommand $@;;
-        release) handleReleaseCommand $@;;
-        new) handleNewCommand $@;;
-        open) handleOpenCommand $@;;
-        destroy) handleDestroyCommand $@;;
-        *) handleUnknownCommand;;
-    esac
+  case ${command} in
+    help) handleHelpCommand $@;;
+    install) handleInstallCommand $@;;
+    develop) handleDevelopCommand $@;;
+    test) handleTestCommand ${2};;
+    watch-tests) handleWatchTestsCommand $@;;
+    format) handleFormatCommand $@;;
+    build) handleBuildCommand $@;;
+    release) handleReleaseCommand $@;;
+    new) handleNewCommand $@;;
+    open) handleOpenCommand $@;;
+    destroy) handleDestroyCommand $@;;
+    *) handleUnknownCommand;;
+  esac
 }
 
 bootstrap $@;
