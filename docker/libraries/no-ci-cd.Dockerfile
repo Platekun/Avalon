@@ -15,6 +15,9 @@ COPY ./templates/libraries/no-ci-cd /avalon-project
 RUN sed -i "s/{{year}}/${YEAR}/" LICENSE
 RUN sed -i "s/{{authorName}}/${AUTHOR_NAME}/" LICENSE
 
+WORKDIR /avalon-project
+RUN sed -i "s/{{projectName}}/${PROJECT_NAME}/" .avaloncli.json
+
 WORKDIR /avalon-project/docker
 RUN sed -i "s/{{projectName}}/${PROJECT_NAME}/" install.Dockerfile
 RUN sed -i "s/{{projectName}}/${PROJECT_NAME}/" start-development.Dockerfile

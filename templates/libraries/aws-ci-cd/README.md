@@ -55,7 +55,8 @@ root
 │   │   └── index.test.ts
 │   ├── tsconfig.json...................................................TypeScript compiler configuration.
 │   └── tsconfig.production.json........................................TypeScript compiler configuration for releasement.
-├── .gitignore
+├── .avaloncli.json.....................................................Avalon CLI configuration file. Contains metadata about the artifact (Internal).
+├── .gitignore..........................................................Filters out unnecesary files from your Git commits.
 ├── .dockerignore.......................................................Filters out unnecesary files from your containers (Internal).
 └── scripts.............................................................Bash scripts used to interact with the codebase. It uses the docker directory files under the hood.
     ├── build.sh........................................................Script to build the project.

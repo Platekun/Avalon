@@ -20,6 +20,29 @@ AWS_NPM_AUTH_TOKEN_SECRET_NAME="AVALON_NPM_AUTH_TOKEN";
 CURRENT_YEAR=$(date +"%Y");
 AUTHOR_NAME=$(whoami);
 
+function handleHelpCommand() {
+    echo "Usage: avalon help COMMAND";
+    echo ""
+    echo "⚔️  A TypeScript application/library generator with opinionated defaults."
+    echo ""
+    echo "📚 Commands:";
+    echo "    help          Display this help message.";
+    echo "    install       Install your project dependencies.";
+    echo "    develop       Spin up a development environment.";
+    echo "    test          Execute the test runner.";
+    echo "    watch-tests   Execute the test runner and watch for changes.";
+    echo "    format        Format your source code.";
+    echo "    build         Compile your source code.";
+    echo "    release       Release your software to the world.";
+    echo "    new           Create a new Avalon artifact.";
+    echo "    open          Browse your resources."
+    echo "    destroy       Remove an avalon project form your machine.";
+    echo ""
+    echo "Run 'avalon COMMAND help' for more information on a command.";
+
+    exit 0;
+}
+
 function handleInstallCommand() {
     if [[ $# == 1 ]]
     then
@@ -135,9 +158,9 @@ function handleBuildCommand() {
 }
 
 function handleReleaseCommand() {
-    isABareBonesLibrary=$(grep -e "\"ci-cd\": \"barebones\"" ".avaloncli.json");
+    cicd=$(jq -r ".cicd" .avaloncli.json);
 
-    if [[ -n ${isABareBonesLibrary} ]]
+    if [[ ${cicd} == "barebones" ]]
     then
         if [[ $# == 1 ]]
         then
@@ -161,31 +184,9 @@ function handleReleaseCommand() {
             esac
         fi
     else
-        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Command not supported for this type of artifact. The ${BLUE}'avalon release'${ENDCOLOR} ${RED}command is only available for Avalon barebones libraries.${ENDCOLOR}");
+        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Command not supported for this type of artifact. The${ENDCOLOR} ${BLUE}'avalon release'${ENDCOLOR} ${RED}command is only available for Avalon barebones libraries.${ENDCOLOR}");
         exit 2;
     fi
-}
-
-function handleHelpCommand() {
-    echo "Usage: avalon COMMAND";
-    echo ""
-    echo "⚔️  A TypeScript application/library generator with opinionated defaults."
-    echo ""
-    echo "📚 Commands:";
-    echo "    destroy       Remove an avalon project form your machine.";
-    echo "    install       Install your project dependencies.";
-    echo "    develop       Spin up a development environment.";
-    echo "    test          Execute the test runner.";
-    echo "    watch-tests   Execute the test runner and watch for changes.";
-    echo "    format        Format your source code.";
-    echo "    build         Compile your source code.";
-    echo "    release       Release your software to the world.";
-    echo "    new           Create a new Avalon artifact.";
-    echo "    help          Display this help message.";
-    echo ""
-    echo "Run 'avalon COMMAND help' for more information on a command.";
-
-    exit 0;
 }
 
 function assertArtifactType() {
@@ -193,7 +194,7 @@ function assertArtifactType() {
 
     if [[ ${artifactType} != "library" && ${artifactType} != "application" ]]
     then
-        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}An unsupported artifact type '${2}' was provided. Avalon only supported ${GREEN}'library'${ENDCOLOR} ${RED}or${ENDCOLOR} ${GREEN}'app'${ENDCOLOR} ${RED}as artifact types${ENDCOLOR}.");
+        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}An unsupported artifact type '${artifactType}' was provided. Avalon only supported${ENDCOLOR} ${GREEN}'library'${ENDCOLOR} ${RED}or${ENDCOLOR} ${GREEN}'app'${ENDCOLOR} ${RED}as artifact types.${ENDCOLOR}");
         exit 1;
     fi
 }
@@ -214,12 +215,12 @@ function rollback() {
     containerName="${artifactName}-container";
     sourceVolumeName="${artifactName}-source";
 
-    rm -rf ${artifactName};
     gh repo delete ${artifactName};
     docker container rm "${containerName}" &> /dev/null;
     docker volume rm "${sourceVolumeName}" &> /dev/null;
     docker image rm "${imageName}" &> /dev/null;
     aws cloudformation delete-stack --stack-name=${artifactName};
+    rm -rf ${artifactName};
 }
 
 function createLibraryWithNoCiCd() {
@@ -257,7 +258,7 @@ function createLibraryWithNoCiCd() {
         --tag ${imageName} \
         ${AVALON_PATH} || \
         {
-            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while creating an image to run a 'create library' command.");
+            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while creating an image to run a 'create library' command.${ENDCOLOR}");
             rollback ${artifactName};
             exit 1;
         };
@@ -271,7 +272,7 @@ function createLibraryWithNoCiCd() {
         --name ${containerName} \
         ${imageName} \
         || {
-            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while running a 'create library' container command.");
+            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while running a 'create library' container command.${ENDCOLOR}");
             rollback ${artifactName};
             exit 1;
         };
@@ -279,7 +280,7 @@ function createLibraryWithNoCiCd() {
     # Copy the contents of the source code volume into a new `library` directory.
     docker cp ${containerName}:${sourceCodeContainerPath} "./${artifactName}" || \
     { 
-        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while copying the contents of the source code volume into a new `library` directory.");
+        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while copying the contents of the source code volume into a new `library` directory.${ENDCOLOR}");
         rollback ${artifactName};
         exit 1;
     };
@@ -303,7 +304,7 @@ function createLibraryWithNoCiCd() {
     docker container rm ${containerName} &> /dev/null;
     docker image rm ${imageName} &> /dev/null;
 
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Success!${ENDCOLOR} Bootstrapped ${artifactName} at \"$(pwd)/${artifactName}.\"")
+    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Success!${ENDCOLOR} Bootstrapped ${BLUE}${artifactName}${ENDCOLOR} at \"${BLUE}$(pwd)/${artifactName}.\"${ENDCOLOR}")
 
     successMessage="
     ℹ️  Inside that directory, you can run several commands from the ${BLUE}scripts${ENDCOLOR} directory:
@@ -379,7 +380,7 @@ function createLibraryWithGitHubCiCd() {
         --tag ${imageName} \
         ${AVALON_PATH} || \
         {
-            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while creating an image to run a 'create library' command.");
+            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while creating an image to run a 'create library' command.${ENDCOLOR}");
             rollback ${artifactName};
             exit 1;
         };
@@ -393,7 +394,7 @@ function createLibraryWithGitHubCiCd() {
         --name ${containerName} \
         ${imageName} \
         || {
-            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while running a 'create library' container command.");
+            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while running a 'create library' container command.${ENDCOLOR}");
             rollback ${artifactName};
             exit 1;
         };
@@ -401,7 +402,7 @@ function createLibraryWithGitHubCiCd() {
     # Copy the contents of the source code volume into a new `library` directory.
     docker cp ${containerName}:${sourceCodeContainerPath} "./${artifactName}" || \
     { 
-        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while copying the contents of the source code volume into a new `library` directory.");
+        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while copying the contents of the source code volume into a new `library` directory.${ENDCOLOR}");
         rollback ${artifactName};
         exit 1;
     };
@@ -426,7 +427,7 @@ function createLibraryWithGitHubCiCd() {
     docker container rm ${containerName} &> /dev/null;
     docker image rm ${imageName} &> /dev/null;
 
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Success!${ENDCOLOR} Bootstrapped ${artifactName} at \"$(pwd)/${artifactName}.\"")
+    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Success!${ENDCOLOR} Bootstrapped ${BLUE}${artifactName}${ENDCOLOR} at \"${BLUE}$(pwd)/${artifactName}.\"${ENDCOLOR}")
 
     successMessage="
     ℹ️  Inside that directory, you can run several commands from the ${BLUE}scripts${ENDCOLOR} directory:
@@ -493,7 +494,7 @@ function createLibraryWithAwsCiCd() {
     # Retrieve the ARN of your npm authorization token residing in AWS Secrets Manager.
     AWS_NPM_AUTH_TOKEN_SECRET_ARN=$(aws secretsmanager get-secret-value --secret-id=${AWS_NPM_AUTH_TOKEN_SECRET_NAME} --query="ARN" --output text) || \
         {
-            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed to retrieve the ARN of your npm authorization token. Please make sure you have a secret with the name \"${AWS_NPM_AUTH_TOKEN_SECRET_NAME}\" stored in your AWS Secrets Manager.");
+            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed to retrieve the ARN of your npm authorization token. Please make sure you have a secret with the name \"${AWS_NPM_AUTH_TOKEN_SECRET_NAME}\" stored in your AWS Secrets Manager.${ENDCOLOR}");
             rollback ${artifactName};
             exit 1;
         };
@@ -508,7 +509,7 @@ function createLibraryWithAwsCiCd() {
         --tag ${imageName} \
         ${AVALON_PATH} || \
         {
-            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while creating an image to run a 'create library' command.");
+            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while creating an image to run a 'create library' command.${ENDCOLOR}");
             rollback ${artifactName};
             exit 1;
         };
@@ -522,7 +523,7 @@ function createLibraryWithAwsCiCd() {
         --name ${containerName} \
         ${imageName} \
         || {
-            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while running a 'create library' container command.");
+            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while running a 'create library' container command.${ENDCOLOR}");
             rollback ${artifactName};
             exit 1;
         };
@@ -530,7 +531,7 @@ function createLibraryWithAwsCiCd() {
     # Copy the contents of the source code volume into a new `library` directory.
     docker cp ${containerName}:${sourceCodeContainerPath} "./${artifactName}" || \
     { 
-        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while copying the contents of the source code volume into a new `library` directory.");
+        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while copying the contents of the source code volume into a new `library` directory.${ENDCOLOR}");
         rollback ${artifactName};
         exit 1;
     };
@@ -556,7 +557,7 @@ function createLibraryWithAwsCiCd() {
         --capabilities CAPABILITY_NAMED_IAM \
         --parameter-overrides GitHubRepositoryUrl=${repositoryUrl} NpmAuthTokenSecretArn=${AWS_NPM_AUTH_TOKEN_SECRET_ARN} || \
         {
-            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while CI/CD pipeline in AWS.");
+            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while CI/CD pipeline in AWS.${ENDCOLOR}");
             cd ..;
             rollback ${artifactName};
             exit 1;
@@ -571,7 +572,7 @@ function createLibraryWithAwsCiCd() {
     docker container rm ${containerName} &> /dev/null;
     docker image rm ${imageName} &> /dev/null;
 
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Success!${ENDCOLOR} Bootstrapped ${artifactName} at \"$(pwd)/${artifactName}.\"")
+    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${GREEN}Success!${ENDCOLOR} Bootstrapped ${BLUE}${artifactName}{ENDCOLOR} at \"${BLUE}$(pwd)/${artifactName}.\"${ENDCOLOR}")
 
     awsRegion=$(aws configure get region);
     awsAccountId=$(aws sts get-caller-identity --query "Account" --output text);
@@ -658,7 +659,7 @@ function handleNewCommand() {
 
     gh repo create ${artifactName} --private || \
         {
-            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while creating a attempting to create GitHub Repository. Make sure GitHub CLI is properly configured with your credentials.");
+            echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED} Bootstrap Error. Failed while creating a attempting to create GitHub Repository. Make sure GitHub CLI is properly configured with your credentials.${ENDCOLOR}");
             rollback ${artifactName};
             exit 1;
         };
@@ -679,6 +680,99 @@ function handleNewCommand() {
         then
             createLibraryWithAwsCiCd ${artifactName} ${cicd} ${repositoryUrl};
         fi
+    fi
+}
+
+function handleOpenCommand() {
+    if [[ $# == 1 ]]
+    then
+        echo "Usage:  avalon open COMMAND";
+        echo "";
+        echo "🌐  Browse your resources.";
+        echo "";
+        echo "📚 Commands:";
+        echo "    repo      Navigate to your artifact's GitHub repository in your browser.";
+        echo "    ci        Navigate to your artifact's CodeBuild CI Project in your browser.";
+        echo "    cd        Navigate to your artifact's CodeBuild CD Project in your browser.";
+        echo "    help      Display this help message.";
+        echo "";
+        echo "Run 'avalon open COMMAND help' for more information on a command.";
+        exit 0;
+    else
+        command=${2};
+
+        case ${command} in
+            help) 
+                echo "Usage:  avalon open COMMAND";
+                echo "";
+                echo "🌐  Browse your resources.";
+                echo "";
+                echo "📚 Commands:";
+                echo "    repo      Navigate to your artifact's GitHub repository in your browser.";
+                echo "    ci        Navigate to your artifact's CodeBuild CI Project in your browser.";
+                echo "    cd        Navigate to your artifact's CodeBuild CD Project in your browser.";
+                echo "    help      Display this help message.";
+                echo "";
+                echo "Run 'avalon open COMMAND help' for more information on a command.";
+                exit 0;;
+            repo)
+                gh repo view --web;;
+            ci)
+                if [ ! -f ".avaloncli.json" ]
+                then
+                    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Your artifact is missing its .avaloncli.json configuration file.${ENDCOLOR}");
+                    exit 1;
+                fi
+
+                artifactName=$(jq -r ".artifactName" .avaloncli.json);
+                cicd=$(jq -r ".cicd" .avaloncli.json);
+
+                if [[ ${cicd} == "aws" ]]
+                then
+                    awsRegion=$(aws configure get region) || \
+                    {
+                        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Failed to obtain the AWS region configured for the AWS CLI.${ENDCOLOR}");
+                        exit 1;
+                    };
+
+                    awsAccountId=$(aws sts get-caller-identity --query "Account" --output text) || \
+                    {
+                        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Failed to obtain the AWS account id configured for the AWS CLI.${ENDCOLOR}");
+                        exit 1;
+                    };
+
+                    open "https://${awsRegion}.console.aws.amazon.com/codesuite/codebuild/${awsAccountId}/projects/${artifactName}-DevelopmentBuild/history?region=${awsRegion}";
+                else
+                    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Command not supported for artifacts using this CI/CD pipeline configuration. The${ENDCOLOR} ${BLUE}'avalon open ci'${ENDCOLOR} ${RED}command is only available for artifacts with AWS with a CI/CD pipeline.${ENDCOLOR}");
+                    exit 2;
+                fi
+            ;;
+            cd)
+                artifactName=$(jq -r ".artifactName" .avaloncli.json);
+                cicd=$(jq -r ".cicd" .avaloncli.json);
+
+                if [[ ${cicd} == "aws" ]]
+                then
+                    awsRegion=$(aws configure get region) || \
+                    {
+                        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Failed to obtain the AWS region configured for the AWS CLI.${ENDCOLOR}");
+                        exit 1;
+                    };
+
+                    awsAccountId=$(aws sts get-caller-identity --query "Account" --output text) || \
+                    {
+                        echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Failed to obtain the AWS account id configured for the AWS CLI.${ENDCOLOR}");
+                        exit 1;
+                    };
+
+                    open "https://${awsRegion}.console.aws.amazon.com/codesuite/codebuild/${awsAccountId}/projects/${artifactName}-ProductionBuild/history?region=${awsRegion}";
+                else
+                    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Command not supported for artifacts using this CI/CD pipeline configuration. The${ENDCOLOR} ${BLUE}'avalon open cd'${ENDCOLOR} ${RED}command is only available for artifacts with AWS with a CI/CD pipeline.${ENDCOLOR}");
+                    exit 2;
+                fi
+            ;;
+            *) handleUnknownCommand;;
+        esac
     fi
 }
 
@@ -720,7 +814,7 @@ function handleDestroyCommand() {
 }
 
 function handleUnknownCommand() {
-    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Command not supported. Try using ${BLUE}'avalon help'${ENDCOLOR} ${RED}command. ${ENDCOLOR}");
+    echo $(printf "${GREEN}[Avalon]${ENDCOLOR} - $(date +"%m-%d-%Y, %r") - ${RED}Command not supported. Try using${ENDCOLOR} ${BLUE}'avalon help'${ENDCOLOR} ${RED}command.${ENDCOLOR}");
     exit 2;
 }
 
@@ -733,6 +827,7 @@ function bootstrap() {
     command=${1};
 
     case ${command} in
+        help) handleHelpCommand $@;;
         install) handleInstallCommand $@;;
         develop) handleDevelopCommand $@;;
         test) handleTestCommand ${2};;
@@ -740,8 +835,8 @@ function bootstrap() {
         format) handleFormatCommand $@;;
         build) handleBuildCommand $@;;
         release) handleReleaseCommand $@;;
-        help) handleHelpCommand $@;;
         new) handleNewCommand $@;;
+        open) handleOpenCommand $@;;
         destroy) handleDestroyCommand $@;;
         *) handleUnknownCommand;;
     esac

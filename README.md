@@ -33,31 +33,17 @@ Avalon leverages the practice of [executable containers](https://levelup.gitconn
 
 Before using Avalon we have to make sure we have installed the following software on your machine:
 
-- [🐳 Docker](https://docs.docker.com/get-docker/), in order to:
-  - Build images.
-  - Create containers.
-  - Start containers.
-  - Create volumes.
-  - Create bind mounts.
-- [🌳 Git](https://git-scm.com/downloads), in order to:
-  - Create repositories.
-  - Delete repositories.
-  - Create branches.
-- [🐙 GitHub CLI](https://cli.github.com), in order to :
-  - Create repositories.
-  - Delete repositories.
-  - View repositories.
-- [☁️ AWS CLI](https://aws.amazon.com/cli/), in order to:
-  - Create CloudFormation stacks.
-  - Delete CloudFormation stacks.
-  - Retrieve Secrets ARN(s).
+- [🐳 Docker](https://docs.docker.com/get-docker/).
+- [🌳 Git](https://git-scm.com/downloads).
+- [🐙 GitHub CLI](https://cli.github.com).
+- [☁️ AWS CLI](https://aws.amazon.com/cli/).
+- [🔬 jq](https://stedolan.github.io/jq/download/).
 
-Avalon also needs to have the GitHub CLI and the AWS CLI configured with a valid set of credentials:
+Additionally, you can use the following resources in case you need help setting everything up:
 
-- [🐙 GitHub CLI](https://cli.github.com): You can perform `gh auth login` or you can follow the [official manual](https://cli.github.com/manual/).
-- [☁️ AWS CLI](https://aws.amazon.com/cli/): You can follow [Stephane Maarek's tutorial](https://www.youtube.com/watch?v=Rp-A84oh4G8).
-
-💡 Avalon will perform the following operations on your behalf:
+- [🌳 Git's](https://git-scm.com/downloads) [official guide](https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup).
+- [🐙 GitHub CLI's](https://cli.github.com) [official manual](https://cli.github.com/manual/).
+- [☁️ AWS CLI's](https://aws.amazon.com/cli/) [Stephane Maarek's tutorial](https://www.youtube.com/watch?v=Rp-A84oh4G8).
 
 ## Defaults
 
@@ -66,9 +52,11 @@ Avalon also needs to have the GitHub CLI and the AWS CLI configured with a valid
 By default Avalon will create two branches by default:
 
 - `dev`: Refers to the environment is the branch that engineers write code in.
-- `main`: Refers to the environment is the branch that end users interact with. It is recommended only
+- `main`: Refers to the environment is the branch that end users interact with.
 
 Both branches are identical when your artifact is freshly created.
+
+💡 **Note**: It is recommended to only push code to these branches via pull requests.
 
 ## Installation
 
@@ -114,7 +102,7 @@ avalon new ARTIFACT_NAME --artifact=library --ci-cd="github-actions"
 
 ### Creating a New Library that leverages AWS (CodeBuild) for CI/CD
 
-Use this recipe to create a [TypeScript](https://www.npmjs.com/package/typescript) library with a Continous Integration (CI) and Continous Delivery (CD) steps using [AWS CodeBuild](https://aws.amazon.com/codebuild/). This is ideal for projects where you wish a more solid project foundation using Amazon's AWS ecosystem.
+Use this recipe to create a [TypeScript](https://www.npmjs.com/package/typescript) library with a Continous Integration (CI) and Continous Delivery (CD) steps using [AWS CodeBuild](https://aws.amazon.com/codebuild/). This is ideal for projects where you wish a more solid project foundation using the AWS ecosystem.
 
 By default, the CI step is triggered by every code change in the repository and the CD step is triggered by merging a pull request from the `dev` branch to the `main` branch.
 
@@ -140,6 +128,7 @@ $ avalon
     --ci-cd=string            Sets the continous integration configuration ("barebones"|"github-actions").
 
 📚 Commands:
+    help          Display this help message.
     install       Install your project dependencies.
     develop       Spin up a development environment.
     test          Execute the test runner.
@@ -148,7 +137,7 @@ $ avalon
     build         Compile your source code.
     release       Release your software to the world.
     new           Create a new Avalon artifact.
-    help          Display this help message.
+    open          Browse your resources.
     destroy       Remove an avalon artifact form your machine.
 
 Run 'avalon COMMAND help' for more information on a command.
@@ -166,18 +155,6 @@ avalon install
 
 Use `avalon install` to an avalon artifact form your machine. It makes use of your `package.json` and `package-lock.json`.
 
-### avalon destroy
-
-#### Usage
-
-```shell
-avalon destroy
-```
-
-#### Description
-
-Use `avalon install` to an avalon artifact form your machine. It makes sure to delete all directores, docker containers, docker volumes, github repositories and AWS infrastructure related to it.
-
 ### avalon develop
 
 #### Usage
@@ -192,16 +169,16 @@ Use `avalon develop` to boot up a development environment. It will compile your 
 
 #### Commands
 
-| Options | Default | Description               | Valid Values |
-| :------ | :------ | :------------------------ | :----------- |
-| `help`  |         | Displays the help message |              |
+| Options | Description               |
+| :------ | :------------------------ |
+| `help`  | Displays the help message |
 
 ### avalon test
 
 #### Usage
 
 ```shell
-avalon test [FILE_PATH]  [JEST_OPTIONS]
+avalon test [FILE_PATH] [JEST_OPTIONS]
 ```
 
 #### Description
@@ -212,9 +189,9 @@ Use `avalon test` to execute the [🃏 Jest](https://jestjs.io) test runner.
 
 #### Commands
 
-| Options | Default | Description                  | Valid Values |
-| :------ | :------ | :--------------------------- | :----------- |
-| `help`  |         | Displays Jest's help message |              |
+| Options | Description                  |
+| :------ | :--------------------------- |
+| `help`  | Displays Jest's help message |
 
 ### avalon watch-tests
 
@@ -230,9 +207,9 @@ Use `avalon watch-tests` to execute the [🃏 Jest](https://jestjs.io) test runn
 
 #### Commands
 
-| Options | Default | Description             | Valid Values |
-| :------ | :------ | :---------------------- | :----------- |
-| `help`  |         | Displays Jest's message |              |
+| Options | Description             |
+| :------ | :---------------------- |
+| `help`  | Displays Jest's message |
 
 ### avalon format
 
@@ -248,9 +225,9 @@ Use `avalon format` to format your source code using [💅 Prettier](https://pre
 
 #### Commands
 
-| Options | Default | Description               | Valid Values |
-| :------ | :------ | :------------------------ | :----------- |
-| `help`  |         | Displays the help message |              |
+| Options | Description               |
+| :------ | :------------------------ |
+| `help`  | Displays the help message |
 
 ### avalon build
 
@@ -266,9 +243,9 @@ Use `avalon build` to compile your source code using the [🧙‍♂️ TypeScri
 
 #### Commands
 
-| Options | Default | Description               | Valid Values |
-| :------ | :------ | :------------------------ | :----------- |
-| `help`  |         | Displays the help message |              |
+| Options | Description               |
+| :------ | :------------------------ |
+| `help`  | Displays the help message |
 
 ### avalon release
 
@@ -282,13 +259,13 @@ avalon release
 
 Use `avalon release` to publish artifact to the npm registry.
 
-**Note**: This command is only available for libraries with `--ci-cd=barebones`.
+**Note**: This command is only available for libraries built with no proper CI/CD pipeline (AKA `--ci-cd=barebones`).
 
 #### Commands
 
-| Options | Default | Description               | Valid Values |
-| :------ | :------ | :------------------------ | :----------- |
-| `help`  |         | Displays the help message |              |
+| Options | Description               |
+| :------ | :------------------------ |
+| `help`  | Displays the help message |
 
 ### avalon new
 
@@ -308,6 +285,45 @@ Use `avalon new` to create new software artifacts (libraries and applications).
 | :----------- | :----------------- | :------------------------------------------------------------------------ | :-------------------------------------- |
 | `--artifact` | `"library"`        | Sets the software artifact type                                           | `"library"`, `"application"`            |
 | `--ci-cd`    | `"github-actions"` | Sets the continous integration & continous delivery (CI/CD) configuration | `"barebones"`, `"github-actions", "aws` |
+
+#### Commands
+
+| Options | Description               |
+| :------ | :------------------------ |
+| `help`  | Displays the help message |
+
+### avalon open
+
+#### Usage
+
+```shell
+avalon open [COMMAND]
+```
+
+#### Description
+
+Use `avalon open` to navigate to your software artifact's resources like its repository or CI/CD pipelines.
+
+#### Commands
+
+| Options | Description                                                      |
+| :------ | :--------------------------------------------------------------- |
+| `help`  | Displays the help message                                        |
+| `repo`  | Navigate to your artifact's GitHub repository in your browser    |
+| `ci`    | Navigate to your artifact's CodeBuild CI Project in your browser |
+| `cd`    | Navigate to your artifact's CodeBuild CD Project in your browser |
+
+### avalon destroy
+
+#### Usage
+
+```shell
+avalon destroy ARTIFACT_NAME
+```
+
+#### Description
+
+Use `avalon destroy` to delete an avalon artifact form your machine. It makes sure to delete all directores, docker containers, docker volumes, GitHub repositories and AWS-related infrastructure related to it.
 
 #### Commands
 

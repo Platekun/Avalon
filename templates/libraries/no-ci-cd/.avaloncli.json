@@ -1,4 +1,5 @@
 {
   "artifact": "library",
-  "ci-cd": "barebones"
+  "artifactName": "{{projectName}}",
+  "cicd": "barebones"
 }

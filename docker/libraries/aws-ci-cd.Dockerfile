@@ -17,6 +17,7 @@ RUN sed -i "s/{{year}}/${YEAR}/" LICENSE
 RUN sed -i "s/{{authorName}}/${AUTHOR_NAME}/" LICENSE
 
 WORKDIR /avalon-project
+RUN sed -i "s/{{projectName}}/${PROJECT_NAME}/" .avaloncli.json
 RUN sed -i "s/{{npmAuthTokenArn}}/${AWS_NPM_AUTH_TOKEN_SECRET_ARN}/" "aws/buildspec.cd.yml"
 
 WORKDIR /avalon-project/docker
