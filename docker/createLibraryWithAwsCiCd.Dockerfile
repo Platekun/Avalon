@@ -4,7 +4,7 @@ FROM node:16-alpine
 RUN apk update && apk add bash
 RUN npm install -g npm@8.4.1
 
-COPY ./scripts/createLibraryWithAwsCiCd.sh ./bootstrap.sh
+COPY ./scripts/bootstrapLibraryWithAwsCiCd.sh ./bootstrap.sh
 RUN chmod +x bootstrap.sh
 
 # 💡 https://stackoverflow.com/questions/14219092/bash-script-and-bin-bashm-bad-interpreter-no-such-file-or-directory

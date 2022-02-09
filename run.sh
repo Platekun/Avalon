@@ -264,14 +264,15 @@ function rollback() {
 }
 
 function createLibraryWithNoCiCd() {
+  DOCKER_FILE_NAME="createLibraryWithNoCiCd.Dockerfile";
+
   # Parameters.
   artifactName=${1};
-  cicd=${2};
-  repositoryUrl=${3};
+  repositoryUrl=${2};
 
   # Docker - general.
   imageName="${artifactName}-image";
-  dockerfilePath="${AVALON_PATH}/docker/libraries/${cicd}.Dockerfile";
+  dockerfilePath="${AVALON_PATH}/docker/${DOCKER_FILE_NAME}";
   containerName="${artifactName}-container";
 
   # Docker - Node modules volume.
@@ -291,9 +292,6 @@ function createLibraryWithNoCiCd() {
 
   # Create an image to run a "create library" command.
   docker image build \
-    --build-arg PROJECT_NAME=${artifactName} \
-    --build-arg YEAR=${CURRENT_YEAR} \
-    --build-arg AUTHOR_NAME=${AUTHOR_NAME} \
     --file ${dockerfilePath} \
     --tag ${imageName} \
     ${AVALON_PATH} || \
@@ -311,7 +309,7 @@ function createLibraryWithNoCiCd() {
     -v ${nodeModulesVolumeName}:${nodeModulesContainerPath} \
     -v ${sourceVolumeName}:${sourceCodeContainerPath} \
     --name ${containerName} \
-    ${imageName} \
+    ${imageName} ${artifactName} ${CURRENT_YEAR} ${AUTHOR_NAME} \
     || {
         avalog "${RED}Bootstrap Error. Failed while running a 'create library' container command.${END_COLOR}";
         rollback ${artifactName};
@@ -382,19 +380,18 @@ function createLibraryWithNoCiCd() {
   logBlankLine;
   log "   🍻 Happy hacking!";
   logBlankLine;
-
-  exit 0;
 }
 
 function createLibraryWithGitHubCiCd() {
+  DOCKER_FILE_NAME="createLibraryWithGitHubCiCd.Dockerfile";
+
   # Parameters.
   artifactName=${1};
-  cicd=${2};
-  repositoryUrl=${3};
+  repositoryUrl=${2};
 
   # Docker - general.
   imageName="${artifactName}-image";
-  dockerfilePath="${AVALON_PATH}/docker/libraries/createLibrary.Dockerfile";
+  dockerfilePath="${AVALON_PATH}/docker/${DOCKER_FILE_NAME}";
   containerName="${artifactName}-container";
 
   # Docker - Node modules volume.
@@ -500,19 +497,18 @@ function createLibraryWithGitHubCiCd() {
   logBlankLine;
   log "   🍻 Happy hacking!";
   logBlankLine;
-
-  exit 0;
 }
 
 function createLibraryWithAwsCiCd() {
+  DOCKER_FILE_NAME="createLibraryWithAwsCiCd.Dockerfile";
+
   # Parameters.
   artifactName=${1};
-  cicd=${2};
-  repositoryUrl=${3};
+  repositoryUrl=${2};
 
   # Docker - general.
   imageName="${artifactName}-image";
-  dockerfilePath="${AVALON_PATH}/docker/libraries/createLibrary.Dockerfile";
+  dockerfilePath="${AVALON_PATH}/docker/${DOCKER_FILE_NAME}";
   containerName="${artifactName}-container";
 
   # Docker - Node modules volume.
@@ -651,11 +647,11 @@ function createLibraryWithAwsCiCd() {
   logBlankLine;
   log "   🍻 Happy hacking!";
   logBlankLine;
-
-  exit 0;
 }
 
 function handleNewCommand() {
+  START_TIME=$(date +%s);
+
   artifactName=${2};
 
   # Defaults.
@@ -708,15 +704,23 @@ function handleNewCommand() {
   then
     if [[ ${cicd} == ${NO_CI_CD} ]]
     then
-      createLibraryWithNoCiCd ${artifactName} ${cicd} ${repositoryUrl};
+      createLibraryWithNoCiCd ${artifactName} ${repositoryUrl};
     elif [[ ${cicd} == ${GITHUB_CI_CD} ]]
     then
-      createLibraryWithGitHubCiCd ${artifactName} ${cicd} ${repositoryUrl};
+      createLibraryWithGitHubCiCd ${artifactName} ${repositoryUrl};
     elif [[ ${cicd} == ${AWS_CI_CD} ]]
     then
-      createLibraryWithAwsCiCd ${artifactName} ${cicd} ${repositoryUrl};
+      createLibraryWithAwsCiCd ${artifactName} ${repositoryUrl};
     fi
   fi
+
+  END_TIME=$(date +%s);
+  timeInSeconds=$((${END_TIME}-${START_TIME}));
+  logBlankLine;
+  log "   Time: ${BLUE}~${timeInSeconds}s${END_COLOR}.";
+  logBlankLine;
+
+  exit 0;
 }
 
 function handleOpenCommand() {
