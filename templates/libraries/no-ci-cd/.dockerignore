@@ -1,4 +1,5 @@
 .gittignore
+.editorconfig
 .env
 docker
 scripts

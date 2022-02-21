@@ -1,0 +1,17 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
+      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
+      - ROLE_ARN="{{codeBuildDockerRuntimeRoleArn}}"
+      - DOCKER_RUNTIME_ROLE=$(aws sts assume-role --role-arn ${ROLE_ARN} --role-session-name {{projectName}}-codebuild-release-docker-runtime)
+      - export DOCKER_RUNTIME_ROLE
+      - export AWS_ACCESS_KEY_ID=$(echo "${DOCKER_RUNTIME_ROLE}" | jq -r '.Credentials.AccessKeyId')
+      - export AWS_SECRET_ACCESS_KEY=$(echo "${DOCKER_RUNTIME_ROLE}" | jq -r '.Credentials.SecretAccessKey')
+      - export AWS_SESSION_TOKEN=$(echo "${DOCKER_RUNTIME_ROLE}" | jq -r '.Credentials.SessionToken')
+
+  build:
+    commands:
+      - chmod +x ./scripts/release.sh && ./scripts/release.sh ${AWS_DEFAULT_REGION} ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} ${AWS_SESSION_TOKEN}

@@ -11,6 +11,7 @@ END_COLOR="\033[0m";
 
 # Enums
 LIBRARY_ARTIFACT_TYPE="library";
+WEBSITE_ARTIFACT_TYPE="website";
 GITHUB_CI_CD="github-ci-cd";
 NO_CI_CD="no-ci-cd";
 AWS_CI_CD="aws-ci-cd";
@@ -230,7 +231,7 @@ function handleReleaseCommand() {
 function assertArtifactType() {
   artifactType=${1};
 
-  if [[ ${artifactType} != "library" && ${artifactType} != "application" ]]
+  if [[ ${artifactType} != "library" && ${artifactType} != "application" && ${artifactType} != "website" ]]
   then
     avalog "${RED}An unsupported artifact type '${artifactType}' was provided. Avalon only supported${END_COLOR} ${GREEN}'library'${END_COLOR} ${RED}or${END_COLOR} ${GREEN}'app'${END_COLOR} ${RED}as artifact types.${END_COLOR}";
 
@@ -252,12 +253,16 @@ function assertArtifactName() {
 function rollback() {
   artifactName=${1};
   imageName="${artifactName}-image";
+  finishImageName="${artifactName}-finish-image";
   containerName="${artifactName}-container";
+  finishContainerName="${artifactName}-finish-container";
   sourceVolumeName="${artifactName}-source";
 
   gh repo delete ${artifactName};
   docker container rm "${containerName}" &> /dev/null;
+  docker container rm "${finishContainerName}" &> /dev/null;
   docker volume rm "${sourceVolumeName}" &> /dev/null;
+  docker image rm "${imageName}" &> /dev/null;
   docker image rm "${imageName}" &> /dev/null;
   aws cloudformation delete-stack --stack-name=${artifactName};
   rm -rf ${artifactName};
@@ -637,9 +642,191 @@ function createLibraryWithAwsCiCd() {
   logBlankLine;
   log "        🐙 Your artifact's GitHub repository is: ${repositoryUrl}.";
   logBlankLine;
-  log "        ☁️  Your CI CodeBuild project is: https://${awsRegion}.console.aws.amazon.com/codesuite/codebuild/${awsAccountId}/projects/${artifactName}-DevelopmentBuild/history?region=${awsRegion}.";
+  log "        🏗⠀⠀Your CI CodeBuild project is: https://${awsRegion}.console.aws.amazon.com/codesuite/codebuild/${awsAccountId}/projects/${artifactName}-DevelopmentBuild/history?region=${awsRegion}.";
   logBlankLine;
-  log "        ☁️  Your CD CodeBuild project is: https://${awsRegion}.console.aws.amazon.com/codesuite/codebuild/${awsAccountId}/projects/${artifactName}-ProductionBuild/history?region=${awsRegion}.";
+  log "        🏗⠀⠀Your CD CodeBuild project is: https://${awsRegion}.console.aws.amazon.com/codesuite/codebuild/${awsAccountId}/projects/${artifactName}-ProductionBuild/history?region=${awsRegion}.";
+  logBlankLine;
+  log "   💡 We suggest that you start by typing:";
+  log "        ${BLUE}cd${END_COLOR} ${artifactName}";
+  log "        ${BLUE}bash${END_COLOR} scripts/start-development.sh";
+  logBlankLine;
+  log "   🍻 Happy hacking!";
+  logBlankLine;
+}
+
+function createWebsite() {
+  DOCKER_FILE_NAME="createWebsite.Dockerfile";
+  FINISH_DOCKER_FILE_NAME="finishCreateWebsite.Dockerfile";
+
+  # Parameters.
+  artifactName=${1};
+  repositoryUrl=${2};
+
+  # Docker - general.
+  imageName="${artifactName}-image";
+  finishImageName="${artifactName}-finish-image";
+  dockerfilePath="${AVALON_PATH}/docker/${DOCKER_FILE_NAME}";
+  finishDockerfilePath="${AVALON_PATH}/docker/${FINISH_DOCKER_FILE_NAME}";
+  containerName="${artifactName}-container";
+  finishContainerName="${artifactName}-finish-container";
+  sourceCodePath="$(pwd)/${artifactName}";
+  finishSourceCodePathWorkdir="/${artifactName}";
+
+  # Docker - Node modules volume.
+  nodeModulesVolumeName="${artifactName}-node_modules";
+  nodeModulesContainerPath="/node_modules";
+
+  # Docker - Source Code.
+  sourceVolumeName="${artifactName}-source";
+  sourceCodeContainerPath="/avalon-project";
+
+  avalog "${GREEN}Bootstrapping a new website...${END_COLOR}";
+
+  # Pre-execution cleanup
+  docker container rm ${containerName} &> /dev/null;
+  docker volume rm ${sourceVolumeName} &> /dev/null;
+  docker image rm ${imageName} &> /dev/null;
+
+  # Create an image to run a "create website" command.
+  docker image build \
+    --file ${dockerfilePath} \
+    --tag ${imageName} \
+    ${AVALON_PATH} || \
+    {
+        avalog "${RED} Bootstrap Error. Failed while creating an image to run a 'create website' command.${END_COLOR}";
+        rollback ${artifactName};
+
+        exit 1;
+    };
+
+  # Run the "create website" command container.
+  docker container run \
+    --interactive \
+    --tty \
+    -v ${nodeModulesVolumeName}:${nodeModulesContainerPath} \
+    -v ${sourceVolumeName}:${sourceCodeContainerPath} \
+    --name ${containerName} \
+    ${imageName} ${artifactName} ${CURRENT_YEAR} ${AUTHOR_NAME} \
+    || {
+        avalog "${RED} Bootstrap Error. Failed while running a 'create website' container command.${END_COLOR}";
+        rollback ${artifactName};
+
+        exit 1;
+    };
+
+  # Copy the contents of the source code volume into a new `website` directory.
+  docker cp ${containerName}:${sourceCodeContainerPath} ${sourceCodePath} || \
+    {
+        avalog "${RED} Bootstrap Error. Failed while copying the contents of the source code volume into a new `website` directory.${END_COLOR}";
+        rollback ${artifactName};
+  
+        exit 1;
+    };
+
+  # Post-execution cleanup.
+  docker volume rm ${sourceVolumeName} &> /dev/null;
+  docker container rm ${containerName} &> /dev/null;
+  docker image rm ${imageName} &> /dev/null;
+
+  cd ${artifactName};
+
+  avalog "${GREEN}Creating AWS CD infrastructure...${END_COLOR}";
+
+  # Create CI/CD infrastructure.
+  aws cloudformation deploy \
+    --template-file ./aws/ci-cd.template.json \
+    --stack-name ${artifactName} \
+    --capabilities CAPABILITY_NAMED_IAM \
+    --parameter-overrides GitHubRepositoryUrl=${repositoryUrl} || \
+    {
+        avalog "${RED} Bootstrap Error. Failed while CD pipeline in AWS.${END_COLOR}";
+        cd ..;
+        rollback ${artifactName};
+
+        exit 1;
+    };
+
+  cd ..;
+
+  # Create an image to run a "finish website" command.
+  docker image build \
+    --file ${finishDockerfilePath} \
+    --tag ${finishImageName} \
+    ${AVALON_PATH} || \
+    {
+        avalog "${RED} Bootstrap Error. Failed while creating an image to run a 'finish website' command.${END_COLOR}";
+        rollback ${artifactName};
+
+        exit 1;
+    };
+
+  codeBuildDockerRuntimeRoleName="${artifactName}-CodeBuildDockerRuntimeRole";
+
+  codeBuildDockerRuntimeRoleArn=$(aws iam get-role --role-name ${codeBuildDockerRuntimeRoleName} --query "Role.Arn" --output text);
+
+  # Run the "finish website" command container.
+  docker container run \
+    --interactive \
+    --tty \
+    -v ${sourceCodePath}:${finishSourceCodePathWorkdir} \
+    --name ${finishContainerName} \
+    ${finishImageName} ${artifactName} ${codeBuildDockerRuntimeRoleArn} \
+    || {
+        avalog "${RED} Bootstrap Error. Failed while running a 'finish website' container command.${END_COLOR}";
+        rollback ${artifactName};
+
+        exit 1;
+    };
+    
+  avalog "${GREEN}Setting up version control...${END_COLOR}";
+
+  # Setup version control.
+  cd ${artifactName};
+  git init;
+  git add --all;
+  git commit -m "Initial commit from Avalon v${AVALON_VERSION}";
+  git remote add origin ${repositoryUrl};
+  git push -u origin main;
+  git checkout -b dev;
+  git push -u origin dev;
+  
+  cd ..;
+
+  avalog "${GREEN}Cleaning up...${END_COLOR}";
+
+  # Post-execution cleanup.
+  docker container rm ${finishContainerName} &> /dev/null;
+  docker image rm ${finishImageName} &> /dev/null;
+
+  awsRegion=$(aws configure get region);
+  awsAccountId=$(aws sts get-caller-identity --query "Account" --output text);
+  cdnDistributionEtag=$(aws cloudformation describe-stack-resources --stack-name ${artifactName} --query "StackResources" | jq '.[] | select(.LogicalResourceId == "CdnDistribution")' | jq -r ".PhysicalResourceId");
+
+  avalog "${GREEN}Success!${END_COLOR} Bootstrapped ${BLUE}${artifactName}${END_COLOR} at ${BLUE}\"$(pwd)/${artifactName}\"${END_COLOR}.";
+  logBlankLine;
+  log "   ℹ️  Inside that directory, you can run several commands from the ${BLUE}scripts${END_COLOR} directory:";
+  logBlankLine;
+  log "        ${BLUE}install${END_COLOR}";
+  log "        Installs the library dependencies (AKA your node_modules).";
+  logBlankLine;
+  log "        ${BLUE}start-development${END_COLOR}";
+  log "        Compiles your source code using the 🧙‍♂️ Parcel bundler (https://parceljs.org) and re-compiles on changes.";
+  logBlankLine;
+  log "        ${BLUE}format${END_COLOR}";
+  log "        Formats your source code using 💅 Prettier (https://prettier.io).";
+  logBlankLine;
+  log "        ${BLUE}build${END_COLOR}";
+  log "        Compiles your source code using the 🧙‍♂️ Parcel bundler (https://parceljs.org).";
+  logBlankLine;
+  log "   🚏 Additionally, a new set of resources was created:";
+  logBlankLine;
+  log "        🐙 Your artifact's GitHub repository is: ${repositoryUrl}.";
+  logBlankLine;
+  log "        🪣⠀⠀Your S3 bucket is: https://s3.console.aws.amazon.com/s3/buckets/${artifactName}-bucket?region=${awsRegion}&tabs=objects.";
+  logBlankLine;
+  log "        😶‍🌫️ Your CloudFront distribution (CDN) is: https://console.aws.amazon.com/cloudfront/v3/home?region=${awsRegion}#/distributions/${cdnDistributionEtag}.";
+  logBlankLine;
+  log "        🏗⠀⠀Your CD CodeBuild project is: https://${awsRegion}.console.aws.amazon.com/codesuite/codebuild/${awsAccountId}/projects/${artifactName}-ProductionBuild/history?region=${awsRegion}.";
   logBlankLine;
   log "   💡 We suggest that you start by typing:";
   log "        ${BLUE}cd${END_COLOR} ${artifactName}";
@@ -674,6 +861,7 @@ function handleNewCommand() {
 
         exit 0;;
       "--artifact=library") artifactType=${LIBRARY_ARTIFACT_TYPE};;
+      "--artifact=website") artifactType=${WEBSITE_ARTIFACT_TYPE};;
       "--ci-cd=barebones") cicd=${NO_CI_CD};;
       "--ci-cd=github-actions") cicd=${GITHUB_CI_CD};;
       "--ci-cd=aws") cicd=${AWS_CI_CD};;
@@ -712,6 +900,9 @@ function handleNewCommand() {
     then
       createLibraryWithAwsCiCd ${artifactName} ${repositoryUrl};
     fi
+  elif [[ ${artifactType} == ${WEBSITE_ARTIFACT_TYPE} ]]
+  then
+    createWebsite ${artifactName} ${repositoryUrl};
   fi
 
   END_TIME=$(date +%s);
@@ -789,7 +980,7 @@ function handleOpenCommand() {
 
           open "https://${awsRegion}.console.aws.amazon.com/codesuite/codebuild/${awsAccountId}/projects/${artifactName}-DevelopmentBuild/history?region=${awsRegion}";
         else
-          avalog "${RED}Command not supported for artifacts using this CI/CD pipeline configuration. The${END_COLOR} ${BLUE}'avalon open ci'${END_COLOR} ${RED}command is only available for artifacts with AWS with a CI/CD pipeline.${END_COLOR}";
+          avalog "${RED}Command not supported for artifacts using this CI pipeline configuration. The${END_COLOR} ${BLUE}'avalon open ci'${END_COLOR} ${RED}command is only available for artifacts with an AWS CI pipeline.${END_COLOR}";
 
           exit 2;
         fi
@@ -802,10 +993,11 @@ function handleOpenCommand() {
           exit 1;
         fi
 
+        artifactType=$(jq -r ".artifact" .avaloncli.json);
         artifactName=$(jq -r ".artifactName" .avaloncli.json);
         cicd=$(jq -r ".cicd" .avaloncli.json);
 
-        if [[ ${cicd} == "aws" ]]
+        if [[ ${artifactType} == "library" && ${cicd} == "aws" ]] || [[ ${artifactType} == "website" ]]
         then
           awsRegion=$(aws configure get region) || \
           {
@@ -823,7 +1015,84 @@ function handleOpenCommand() {
 
           open "https://${awsRegion}.console.aws.amazon.com/codesuite/codebuild/${awsAccountId}/projects/${artifactName}-ProductionBuild/history?region=${awsRegion}";
         else
-          avalog "${RED}Command not supported for artifacts using this CI/CD pipeline configuration. The${END_COLOR} ${BLUE}'avalon open cd'${END_COLOR} ${RED}command is only available for artifacts with AWS with a CI/CD pipeline.${END_COLOR}";
+          avalog "${RED}Command not supported for artifacts using this CD pipeline configuration. The${END_COLOR} ${BLUE}'avalon open cd'${END_COLOR} ${RED}command is only available for artifacts with an AWS CD pipeline.${END_COLOR}";
+
+          exit 2;
+        fi
+      ;;
+      cdn)
+        if [ ! -f ".avaloncli.json" ]
+        then
+          avalog "${RED}Your artifact is missing its .avaloncli.json configuration file.${END_COLOR}";
+
+          exit 1;
+        fi
+
+        artifactType=$(jq -r ".artifact" .avaloncli.json);
+        artifactName=$(jq -r ".artifactName" .avaloncli.json);
+        cicd=$(jq -r ".cicd" .avaloncli.json);
+
+        if [[ ${artifactType} == "library" && ${cicd} == "aws" ]] || [[ ${artifactType} == "website" ]]
+        then
+          awsRegion=$(aws configure get region) || \
+          {
+              avalog "${RED}Failed to obtain the AWS region configured for the AWS CLI.${END_COLOR}";
+
+              exit 1;
+          };
+
+          awsAccountId=$(aws sts get-caller-identity --query "Account" --output text) || \
+          {
+              avalog "${RED}Failed to obtain the AWS account id configured for the AWS CLI.${END_COLOR}";
+
+              exit 1;
+          };
+
+          cdnDistributionEtag=$(aws cloudformation describe-stack-resources --stack-name ${artifactName} --query "StackResources" | jq '.[] | select(.LogicalResourceId == "CdnDistribution")' | jq -r ".PhysicalResourceId") || \
+          {
+            avalog "${RED}Failed to obtain the CDN resource in your CloudFormation stack.${END_COLOR}";
+
+            exit 1;
+          };
+
+          open "https://console.aws.amazon.com/cloudfront/v3/home?region=${awsRegion}#/distributions/${cdnDistributionEtag}";
+        else
+          avalog "${RED}Command not supported for artifacts using this CD pipeline configuration. The${END_COLOR} ${BLUE}'avalon open cd'${END_COLOR} ${RED}command is only available for artifacts that are websites or client applications.${END_COLOR}";
+
+          exit 2;
+        fi
+      ;;
+      s3)
+        if [ ! -f ".avaloncli.json" ]
+        then
+          avalog "${RED}Your artifact is missing its .avaloncli.json configuration file.${END_COLOR}";
+
+          exit 1;
+        fi
+
+        artifactType=$(jq -r ".artifact" .avaloncli.json);
+        artifactName=$(jq -r ".artifactName" .avaloncli.json);
+        cicd=$(jq -r ".cicd" .avaloncli.json);
+
+        if [[ ${artifactType} == "library" && ${cicd} == "aws" ]] || [[ ${artifactType} == "website" ]]
+        then
+          awsRegion=$(aws configure get region) || \
+          {
+              avalog "${RED}Failed to obtain the AWS region configured for the AWS CLI.${END_COLOR}";
+
+              exit 1;
+          };
+
+          awsAccountId=$(aws sts get-caller-identity --query "Account" --output text) || \
+          {
+              avalog "${RED}Failed to obtain the AWS account id configured for the AWS CLI.${END_COLOR}";
+
+              exit 1;
+          };
+
+          open "https://s3.console.aws.amazon.com/s3/buckets/${artifactName}-bucket?region=${awsRegion}&tabs=objects.";
+        else
+          avalog "${RED}Command not supported for artifacts using this CD pipeline configuration. The${END_COLOR} ${BLUE}'avalon open cd'${END_COLOR} ${RED}command is only available for artifacts that are websites or client applications.${END_COLOR}";
 
           exit 2;
         fi

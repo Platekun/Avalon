@@ -1,12 +1,10 @@
+.parcel-cache
 .gittignore
 .editorconfig
-.env
 docker
 scripts
 node_modules
 dist
-library/LICENSE
-library/README.md
 .avaloncli.json
 buildspec.ci.yml
 buildspec.cd.yml

@@ -1,0 +1,5 @@
+:root {
+  --primary-color: white;
+  --faded-primary-color: rgba(255, 255, 255, 0.25);
+  --secondary-color: #0e1f40;
+}

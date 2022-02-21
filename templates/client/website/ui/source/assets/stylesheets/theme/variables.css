@@ -1,0 +1,6 @@
+:root {
+  --box-model: border-box;
+  --root-font-size: 62.5%;
+  --space: 0.4rem;
+  --transition-time: 0.3s;
+}

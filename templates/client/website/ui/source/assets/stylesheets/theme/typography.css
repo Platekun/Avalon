@@ -1,0 +1,79 @@
+:root {
+  --font-family: Helvetica, Arial, Helvetica, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+label,
+input,
+textarea,
+button,
+small,
+strong,
+span {
+  font-family: var(--font-family);
+}
+
+.typography {
+  margin: 0;
+}
+
+.typography.typography--align-center {
+  text-align: center;
+}
+
+.typography.typography--color-primary {
+  color: var(--primary-color);
+}
+
+.typography.typography--font-weight-normal {
+  font-weight: normal;
+}
+
+.typography.typography--font-weight-bold {
+  font-weight: bold;
+}
+
+.typography.typography--heading1 {
+  --font-size: 9.6rem;
+
+  font-size: var(--font-size);
+  font-weight: bold;
+  text-shadow: 0px 0px 8px #5adbfc, 0px 0px 8px #bbe8e9;
+}
+
+.typography.typography--heading2 {
+  --font-size: 4.8rem;
+
+  font-size: var(--font-size);
+  font-weight: bold;
+  text-shadow: 0px 0px 4px var(--primary-color);
+}
+
+/* 💡 Here would go typography--heading3 to typography--heading6 */
+
+.typography.typography--body {
+  --font-size: 3.2rem;
+
+  font-size: var(--font-size);
+  font-style: normal;
+  text-shadow: 0px 0px 4px var(--primary-color);
+  text-transform: uppercase;
+}
+
+.typography.typography--parragraph {
+  --font-size: 2.6rem;
+
+  font-size: var(--font-size);
+  text-shadow: 0px 0px 4px var(--primary-color);
+}
+
+.typography.typography--link {
+  color: var(--secondary-color);
+  text-decoration: none;
+}

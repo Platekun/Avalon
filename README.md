@@ -281,10 +281,10 @@ Use `avalon new` to create new software artifacts (libraries and applications).
 
 #### Options
 
-| Options      | Default            | Description                                                               | Valid Values                            |
-| :----------- | :----------------- | :------------------------------------------------------------------------ | :-------------------------------------- |
-| `--artifact` | `"library"`        | Sets the software artifact type                                           | `"library"`, `"application"`            |
-| `--ci-cd`    | `"github-actions"` | Sets the continous integration & continous delivery (CI/CD) configuration | `"barebones"`, `"github-actions", "aws` |
+| Options      | Default            | Description                                                               | Valid Values                             |
+| :----------- | :----------------- | :------------------------------------------------------------------------ | :--------------------------------------- |
+| `--artifact` | `"library"`        | Sets the software artifact type                                           | `"library"`, `"website"`,`"application"` |
+| `--ci-cd`    | `"github-actions"` | Sets the continous integration & continous delivery (CI/CD) configuration | `"barebones"`, `"github-actions", "aws`  |
 
 #### Commands
 
@@ -306,12 +306,14 @@ Use `avalon open` to navigate to your software artifact's resources like its rep
 
 #### Commands
 
-| Options | Description                                                      |
-| :------ | :--------------------------------------------------------------- |
-| `help`  | Displays the help message                                        |
-| `repo`  | Navigate to your artifact's GitHub repository in your browser    |
-| `ci`    | Navigate to your artifact's CodeBuild CI Project in your browser |
-| `cd`    | Navigate to your artifact's CodeBuild CD Project in your browser |
+| Options  | Description                                                         |
+| :------- | :------------------------------------------------------------------ |
+| `help`   | Displays the help message                                           |
+| `repo`   | Navigate to your artifact's GitHub repository in your browser       |
+| `ci`     | Navigate to your artifact's CodeBuild CI Project in your browser    |
+| `cd`     | Navigate to your artifact's CodeBuild CD Project in your browser    |
+| `bucket` | Navigate to your artifact's S3 Bucket in your browser               |
+| `cdn`    | Navigate to your artifact's CloudFront Distribution in your browser |
 
 ### avalon destroy
 

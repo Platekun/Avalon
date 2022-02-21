@@ -1,0 +1,5 @@
+{
+  "artifact": "website",
+  "artifactName": "{{projectName}}",
+  "cicd": "aws"
+}

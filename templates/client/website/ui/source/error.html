@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Website information (Title and favicons). -->
+    <include src="./source/assets/includes/website-info.html"></include>
+
+    <!-- Page meta information (Charset, description, keywords, author, responsive). -->
+    <include src="./source/assets/includes/page-meta.html"></include>
+
+    <!-- Page stylesheets (CSS rules that are common between multiple pages). -->
+    <include src="./source/assets/includes/page-stylesheets.html"></include>
+
+    <!-- Specific page stylesheets (CSS rules that are specific to this page). -->
+    <link rel="stylesheet" href="./assets/stylesheets/pages/error.page.css" />
+  </head>
+
+  <body class="ErrorPage">
+    <main class="ErrorPage__root-container">
+      <section>
+        <header class="ErrorPage__header">
+          <h1
+            class="typography typography--color-primary typography--align-center typography--heading1 ErrorPage__logo non-selectable"
+          >
+            Page Not Found
+          </h1>
+        </header>
+
+        <div class="ErrorPage__welcome-message-container">
+          <p class="typography typography--color-primary typography--heading2 ErrorPage__error-message non-selectable">
+            Sorry, but the page you were trying to view does not exist.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Specific page scripts (Scripts that are specific to this page). -->
+    <!-- <script type="module" src="./error.page.ts"></script> -->
+
+    <!-- Third-party vendor scripts (Scripts that are specific to this page but are from third-parties). -->
+    <include src="./source/assets/includes/page-scripts.html"></include>
+
+    <!-- Google analytics scripts. Read more: https://analytics.google.com/analytics/web/provision/#/provision. -->
+    <include src="./source/assets/includes/google-analytics.html"></include>
+  </body>
+</html>
+<!-- IE needs 512+ bytes: https://docs.microsoft.com/archive/blogs/ieinternals/friendly-http-error-pages -->

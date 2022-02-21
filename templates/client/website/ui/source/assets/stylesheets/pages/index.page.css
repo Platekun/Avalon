@@ -1,0 +1,104 @@
+.IndexPage .IndexPage__root-container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(50% 50% at 50% 50%, #2c5f96 0%, #224b86 49.48%, var(--secondary-color) 100%);
+}
+
+.IndexPage .IndexPage__header {
+  margin-bottom: calc(var(--space) * 25);
+  position: relative;
+}
+
+.IndexPage .IndexPage__logo {
+  z-index: var(--zindex-text-over-image);
+  position: relative;
+}
+
+.IndexPage .IndexPage__swords-logo {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translate(-50%, -25%);
+  z-index: var(--zindex-images);
+}
+
+.IndexPage .IndexPage__welcome-message-container {
+  margin-bottom: calc(var(--space) * 25);
+  display: flex;
+  justify-content: center;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.IndexPage .IndexPage__welcome-message {
+  font-family: 'Times New Roman';
+  animation-name: blink;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
+}
+
+.IndexPage .IndexPage__welcome-message::before,
+.IndexPage .IndexPage__welcome-message::after {
+  content: '~';
+}
+
+.IndexPage .IndexPage__menu-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 26rem;
+  margin: 0 auto;
+  margin-bottom: calc(var(--space) * 20);
+}
+
+.IndexPage .IndexPage__start-option,
+.IndexPage .IndexPage__docs-option {
+  cursor: pointer;
+  opacity: 0.5;
+  transition: calc(var(--transition-time) / 2) ease opacity;
+}
+
+.IndexPage .IndexPage__start-option[data-menu-item-active='true'],
+.IndexPage .IndexPage__docs-option[data-menu-item-active='true'] {
+  opacity: 1;
+}
+
+.IndexPage .IndexPage__call-to-actions-container {
+  position: relative;
+  width: 79.6rem;
+  height: 9.3rem;
+}
+
+.IndexPage .IndexPage__cta {
+  background-color: var(--faded-primary-color);
+  border: 4px solid var(--faded-primary-color);
+  border-radius: 8px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: var(--transition-time) ease opacity;
+}
+
+.IndexPage .IndexPage__cta[data-menu-item-active='true'] {
+  opacity: 1;
+}

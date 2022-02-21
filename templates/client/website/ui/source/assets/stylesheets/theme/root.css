@@ -1,0 +1,15 @@
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+/* 💡 https://stackoverflow.com/questions/28988445/css-62-5-why-do-developers-use-it */
+html {
+  font-size: var(--root-font-size);
+  box-sizing: var(--box-model);
+}
+
+body {
+  margin: 0;
+}

@@ -31,6 +31,9 @@ This project was bootstrapped with Avalon.
 
 ```
 root
+├── .avaloncli.json.....................................................Avalon CLI configuration file. Contains metadata about the artifact (Internal).
+├── .gitignore..........................................................Filters out unnecesary files from your Git commits.
+├── .dockerignore.......................................................Filters out unnecesary files from your containers (Internal).
 ├── README.md...........................................................README of your project.
 ├── aws.................................................................AWS related files.
 │   ├── buildspec.cd.yml................................................Development CodeBuild project configuration file (CD Step).
@@ -45,6 +48,8 @@ root
 │   ├── test.Dockerfile.................................................Dockerfile used to execute the test runner.
 │   └── watch-tests.Dockerfile..........................................Dockerfile used to execute the test runner and watch for changes.
 ├── library
+    ├── .prettierignore.................................................Filters out files that won't be formatted.
+    ├── .prettierrc.json................................................File formatter.
 │   ├── LICENSE.........................................................Software License.
 │   ├── jest.config.js..................................................Test runner configuration.
 │   ├── package.json....................................................Defines name, version and project dependencies.
@@ -55,9 +60,6 @@ root
 │   │   └── index.test.ts
 │   ├── tsconfig.json...................................................TypeScript compiler configuration.
 │   └── tsconfig.production.json........................................TypeScript compiler configuration for releasement.
-├── .avaloncli.json.....................................................Avalon CLI configuration file. Contains metadata about the artifact (Internal).
-├── .gitignore..........................................................Filters out unnecesary files from your Git commits.
-├── .dockerignore.......................................................Filters out unnecesary files from your containers (Internal).
 └── scripts.............................................................Bash scripts used to interact with the codebase. It uses the docker directory files under the hood.
     ├── build.sh........................................................Script to build the project.
     ├── release.sh......................................................Script to release the project.
@@ -207,7 +209,7 @@ Software releases are automated however the team can decide the frequency of the
 
 #### Usage
 
-Avalon sets up a development [CodeBuild](https://aws.amazon.com/codebuild/) project for this purpose. The name of the CodeBuild project is `<<artifact-name>>ProductionBuild`. where `<<artifact-name>>` is the name you passed when creating the artifact when using `avalon new`.
+Avalon sets up a production [CodeBuild](https://aws.amazon.com/codebuild/) project for this purpose. The name of the CodeBuild project is `<<artifact-name>>ProductionBuild`. where `<<artifact-name>>` is the name you passed when creating the artifact when using `avalon new`.
 
 To publish your project to npm, you only need to create and merge a pull request from the `dev` branch into your `main` branch.
 

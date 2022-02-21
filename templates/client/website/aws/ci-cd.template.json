@@ -1,0 +1,315 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "GitHubRepositoryUrl": {
+      "Type": "String",
+      "Description": "Your GitHub repository's URL"
+    }
+  },
+  "Resources": {
+    "CodeBuildDockerRuntimeRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": {
+          "Fn::Sub": "${AWS::StackName}-CodeBuildDockerRuntimeRole"
+        },
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "*"
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "CodeBuildDockerRuntimePolicy",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:PutObject"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:aws:s3:::${Bucket}"
+                    },
+                    {
+                      "Fn::Sub": "arn:aws:s3:::${Bucket}/*"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "CodeBuildRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": {
+          "Fn::Sub": "${AWS::StackName}-CodeBuildRole"
+        },
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "codebuild.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "CodeBuildAccessPolicy",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": [
+                    "arn:aws:logs:*:*:*"
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "sts:AssumeRole"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::GetAtt": [
+                        "CodeBuildDockerRuntimeRole",
+                        "Arn"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "ProductionBuild": {
+      "Type": "AWS::CodeBuild::Project",
+      "Properties": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-ProductionBuild"
+        },
+        "ServiceRole": {
+          "Fn::GetAtt": [
+            "CodeBuildRole",
+            "Arn"
+          ]
+        },
+        "Artifacts": {
+          "Type": "NO_ARTIFACTS"
+        },
+        "Environment": {
+          "Type": "LINUX_CONTAINER",
+          "ComputeType": "BUILD_GENERAL1_SMALL",
+          "Image": "aws/codebuild/standard:5.0",
+          "PrivilegedMode": true
+        },
+        "Source": {
+          "Auth": {
+            "Type": "OAUTH"
+          },
+          "BuildSpec": "aws/buildspec.cd.yml",
+          "Location": {
+            "Ref": "GitHubRepositoryUrl"
+          },
+          "Type": "GITHUB"
+        },
+        "TimeoutInMinutes": 10,
+        "Triggers": {
+          "Webhook": true,
+          "FilterGroups": [
+            [
+              {
+                "Type": "EVENT",
+                "Pattern": "PULL_REQUEST_MERGED"
+              },
+              {
+                "Type": "HEAD_REF",
+                "Pattern": "^refs/heads/dev$"
+              },
+              {
+                "Type": "BASE_REF",
+                "Pattern": "^refs/heads/main$"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "BucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "Bucket"
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "CanonicalUser": {
+                  "Fn::GetAtt": [
+                    "CdnOriginAccessIdentity",
+                    "S3CanonicalUserId"
+                  ]
+                }
+              },
+              "Resource": [
+                {
+                  "Fn::Sub": "arn:aws:s3:::${Bucket}"
+                },
+                {
+                  "Fn::Sub": "arn:aws:s3:::${Bucket}/*"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "Bucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": {
+          "Fn::Sub": "${AWS::StackName}-bucket"
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true
+        }
+      }
+    },
+    "CdnCachePolicy": {
+      "Type": "AWS::CloudFront::CachePolicy",
+      "Properties": {
+        "CachePolicyConfig": {
+          "DefaultTTL": 3600,
+          "MaxTTL": 86400,
+          "MinTTL": 60,
+          "Name": {
+            "Fn::Sub": "${AWS::StackName}-cdn-cache-poilicy"
+          },
+          "ParametersInCacheKeyAndForwardedToOrigin": {
+            "CookiesConfig": {
+              "CookieBehavior": "none"
+            },
+            "EnableAcceptEncodingBrotli": true,
+            "EnableAcceptEncodingGzip": true,
+            "HeadersConfig": {
+              "HeaderBehavior": "none"
+            },
+            "QueryStringsConfig": {
+              "QueryStringBehavior": "all"
+            }
+          }
+        }
+      }
+    },
+    "CdnOriginAccessIdentity": {
+      "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
+      "Properties": {
+        "CloudFrontOriginAccessIdentityConfig": {
+          "Comment": {
+            "Ref": "Bucket"
+          }
+        }
+      }
+    },
+    "CdnDistribution": {
+      "Type": "AWS::CloudFront::Distribution",
+      "Properties": {
+        "DistributionConfig": {
+          "Enabled": true,
+          "CustomErrorResponses": [
+            {
+              "ErrorCode": 403,
+              "ResponseCode": 404,
+              "ResponsePagePath": "/error.html"
+            }
+          ],
+          "DefaultRootObject": "index.html",
+          "DefaultCacheBehavior": {
+            "AllowedMethods": [
+              "GET",
+              "HEAD",
+              "OPTIONS"
+            ],
+            "CachePolicyId": {
+              "Ref": "CdnCachePolicy"
+            },
+            "CachedMethods": [
+              "GET",
+              "HEAD",
+              "OPTIONS"
+            ],
+            "Compress": true,
+            "TargetOriginId": {
+              "Fn::Sub": "${AWS::StackName}-cdn"
+            },
+            "ViewerProtocolPolicy": "redirect-to-https"
+          },
+          "Origins": [
+            {
+              "DomainName": {
+                "Fn::GetAtt": [
+                  "Bucket",
+                  "RegionalDomainName"
+                ]
+              },
+              "Id": {
+                "Fn::Sub": "${AWS::StackName}-cdn"
+              },
+              "S3OriginConfig": {
+                "OriginAccessIdentity": {
+                  "Fn::Sub": [
+                    "origin-access-identity/cloudfront/${OAI}",
+                    {
+                      "OAI": {
+                        "Ref": "CdnOriginAccessIdentity"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "PriceClass": "PriceClass_All"
+        }
+      }
+    }
+  }
+}

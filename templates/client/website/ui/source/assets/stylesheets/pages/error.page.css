@@ -1,0 +1,23 @@
+.ErrorPage .ErrorPage__root-container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(50% 50% at 50% 50%, #2c5f96 0%, #224b86 49.48%, var(--secondary-color) 100%);
+}
+
+.ErrorPage .ErrorPage__header {
+  margin-bottom: calc(var(--space) * 25);
+  position: relative;
+}
+
+.ErrorPage .ErrorPage__logo {
+  z-index: var(--zindex-text-over-image);
+  position: relative;
+}
+
+.ErrorPage .ErrorPage__error-message-container {
+  margin-bottom: calc(var(--space) * 25);
+  display: flex;
+  justify-content: center;
+}

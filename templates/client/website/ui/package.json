@@ -1,0 +1,21 @@
+{
+  "name": "{{projectName}}",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "parcel build 'source/*.html'",
+    "format": "prettier --write .",
+    "release": "TODO",
+    "start:development": "parcel 'source/*.html' -p 8080"
+  },
+  "devDependencies": {
+    "@parcel/packager-raw-url": "2.3.1",
+    "@parcel/transformer-webmanifest": "2.3.1",
+    "@trivago/prettier-plugin-sort-imports": "3.1.1",
+    "parcel": "2.3.1",
+    "posthtml-include": "1.7.2",
+    "prettier": "2.5.1"
+  },
+  "engines": {
+    "node": "16"
+  }
+}

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Website information (Title and favicons). -->
+  <include src="./source/assets/includes/website-info.html"></include>
+
+  <!-- Page meta information (Charset, description, keywords, author, responsive). -->
+  <include src="./source/assets/includes/page-meta.html"></include>
+
+  <!-- Page stylesheets (CSS rules that are common between multiple pages). -->
+  <include src="./source/assets/includes/page-stylesheets.html"></include>
+
+  <!-- Specific page stylesheets (CSS rules that are specific to this page). -->
+  <link rel="stylesheet" href="./assets/stylesheets/pages/index.page.css" />
+
+  <!-- Facebook social meta information. Read more: https://developers.facebook.com/docs/sharing/webmasters/. -->
+  <meta property="og:title" content="" />
+  <meta property="og:type" content="" />
+  <meta property="og:url" content="" />
+  <meta property="og:image" content="" />
+
+  <!-- Twitter social meta information. Read more: https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/markup. -->
+  <meta name="”twitter:card”" content="" />
+  <meta name="”twitter:title”" content="" />
+  <meta name="”twitter:description”" content="" />
+  <meta name="”twitter:site”" content="" />
+  <meta name="”twitter:image”" content="" />
+</head>
+
+<body class="IndexPage">
+  <main class="IndexPage__root-container">
+    <section>
+      <header class="IndexPage__header">
+        <h1
+          class="typography typography--color-primary typography--align-center typography--heading1 IndexPage__logo non-selectable">
+          Avalon
+        </h1>
+        <img src="./assets/images/swords.svg" alt="Swords" class="IndexPage__swords-logo" />
+      </header>
+
+      <div class="IndexPage__welcome-message-container">
+        <h2 class="typography typography--color-primary typography--heading2 IndexPage__welcome-message non-selectable">
+          Welcome
+        </h2>
+      </div>
+
+      <ul class="IndexPage__menu-options">
+        <li>
+          <button class="IndexPage__start-option" data-menu-option data-menu-option-id="start"
+            data-menu-item-active="false">
+            <span class="typography typography--color-primary typography--align-center typography--body non-selectable">
+              Start
+            </span>
+          </button>
+        </li>
+        <li>
+          <button class="IndexPage__start-option" data-menu-option data-menu-option-id="docs"
+            data-menu-item-active="false">
+            <span class="typography typography--color-primary typography--align-center typography--body non-selectable">
+              Docs
+            </span>
+          </button>
+        </li>
+      </ul>
+
+      <div class="IndexPage__call-to-actions-container">
+        <div class="IndexPage__cta" data-menu-cta-id="start" data-menu-item-active="false">
+          <p
+            class="typography typography--color-primary typography--align-center typography--font-weight-normal typography--parragraph IndexPage__cta-label">
+            Edit your "<code>index.html</code>" to get started.
+          </p>
+        </div>
+        <div class="IndexPage__cta" data-menu-cta-id="docs" data-menu-item-active="false">
+          <p
+            class="typography typography--color-primary typography--align-center typography--font-weight-normal typography--parragraph IndexPage__cta-label">
+            Don't forget to
+            <a href="https://github.com/Platekun/Avalon" target="blank" title="Avalon Documentation"
+              class="typography typography--link non-selectable">visit our docs</a>
+            to learn more about what Avalon provides you with.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Specific page scripts (Scripts that are specific to this page). -->
+  <script type="module" src="./assets/scripts/pages/index.page.ts"></script>
+
+  <!-- Third-party vendor scripts (Scripts that are specific to this page but are from third-parties). -->
+  <include src="./source/assets/includes/page-scripts.html"></include>
+
+  <!-- Google analytics scripts. Read more: https://analytics.google.com/analytics/web/provision/#/provision. -->
+  <include src="./source/assets/includes/google-analytics.html"></include>
+</body>
+
+</html>
