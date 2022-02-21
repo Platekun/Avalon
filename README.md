@@ -49,7 +49,7 @@ Additionally, you can use the following resources in case you need help setting 
 
 ### Branches
 
-By default Avalon will create two branches by default:
+By default Avalon will create two [branches](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell) by default:
 
 - `dev`: Refers to the environment is the branch that engineers write code in.
 - `main`: Refers to the environment is the branch that end users interact with.
@@ -57,6 +57,17 @@ By default Avalon will create two branches by default:
 Both branches are identical when your artifact is freshly created.
 
 💡 **Note**: It is recommended to only push code to these branches via pull requests.
+
+### Git Hooks
+
+[Git Hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) are a mean to fire off custom scripts when certain important actions occur while performing [🌳 Git](https://git-scm.com) actions. Git hooks are located in the `.git/hooks` where each file represents a different hook.
+
+By default Avalon will create two client-side hooks:
+
+- `pre-commit`: Will format files before `git commit`.
+- `pre-push`:
+  - Will prevent any `git push` action to `master`/`main`/`dev` branches.
+  - Will format files before `git push`.
 
 ## Installation
 

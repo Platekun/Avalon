@@ -170,6 +170,17 @@ alternatively you can run the script using the Avalon CLI:
 avalon build
 ```
 
+## Git Hooks
+
+Git hooks are a mean to fire off custom scripts when certain important actions occur while performing [🌳 Git](https://git-scm.com) actions. Git hooks are located in the `.git/hooks` where each file represents a different hook.
+
+Avalon sets up two client-side hooks:
+
+- `pre-commit`: Will format files before `git commit`.
+- `pre-push`:
+  - Will prevent any `git push` action to `master`/`main`/`dev` branches.
+  - Will format files before `git push`.
+
 ## CI/CD
 
 CI/CD is a modern software development practice in which incremental changes are made frequently and then the code is delivered quickly. It is a way to provide value to customers efficientlly by using automations to shorten the release cycles.
@@ -227,3 +238,4 @@ The CodeBuild project will be responsible of uploading your project the S3 Bucke
 - [Docker for Development: Service Containers vs Executable Containers](https://levelup.gitconnected.com/docker-for-development-service-containers-vs-executable-containers-9fb831775133).
 - [CodeBuild](https://aws.amazon.com/codebuild/).
 - [What's a CDN](https://www.cloudflare.com/learning/cdn/what-is-a-cdn/).
+- [Git Hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks).

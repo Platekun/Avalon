@@ -161,6 +161,17 @@ avalon build
 
 **Note**: 💡 The scripts for CI (`ci.sh`) and Release(`release.sh`) are meant to be used via GitHub actions.
 
+## Git Hooks
+
+Git hooks are a mean to fire off custom scripts when certain important actions occur while performing [🌳 Git](https://git-scm.com) actions. Git hooks are located in the `.git/hooks` where each file represents a different hook.
+
+Avalon sets up two client-side hooks:
+
+- `pre-commit`: Will format files before `git commit`.
+- `pre-push`:
+  - Will prevent any `git push` action to `master`/`main`/`dev` branches.
+  - Will format files before `git push`.
+
 ## CI/CD
 
 CI/CD is a modern software development practice in which incremental changes are made frequently and then the code is delivered quickly. It is a way to provide value to customers efficientlly by using automations to shorten the release cycles.
@@ -233,3 +244,4 @@ The _CD_ GitHub action needs to be provided with an `NPM_AUTH_TOKEN` to perform 
 - [Integrating npm with external services](https://docs.npmjs.com/integrations/integrating-npm-with-external-services).
 - [Managing releases in a repository](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
 - [GitHub Actions Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets).
+- [Git Hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks).
