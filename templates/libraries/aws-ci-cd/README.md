@@ -33,7 +33,6 @@ This project was bootstrapped with Avalon.
 root
 ├── .avaloncli.json.....................................................Avalon CLI configuration file. Contains metadata about the artifact (Internal).
 ├── .gitignore..........................................................Filters out unnecesary files from your Git commits.
-├── .dockerignore.......................................................Filters out unnecesary files from your containers (Internal).
 ├── README.md...........................................................README of your project.
 ├── aws.................................................................AWS related files.
 │   ├── buildspec.cd.yml................................................Development CodeBuild project configuration file (CD Step).

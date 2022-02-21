@@ -32,7 +32,6 @@ This project was bootstrapped with Avalon.
 ```
 root
 ├── .avaloncli.json.....................................................Avalon CLI configuration file. Contains metadata about the artifact (Internal).
-├── .dockerignore.......................................................Filters out unnecesary files from your containers (Internal).
 ├── .editorconfig.......................................................Defines a consistent indentation style.
 ├── .gitignore..........................................................Filters out unnecesary files from your Git commits.
 ├── README.md...........................................................README of your project.
