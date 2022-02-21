@@ -34,7 +34,7 @@ function bootstrap() {
   sed -i "s/{{year}}/${YEAR}/" "LICENSE";
   sed -i "s/{{authorName}}/${AUTHOR_NAME}/" "LICENSE";
   sed -i "s/{{projectName}}/${PROJECT_NAME}/" "package.json";
-  sed -i "s/{{projectName}}/${PROJECT_NAME}/" "package-lock.json  ";
+  sed -i "s/{{projectName}}/${PROJECT_NAME}/" "package-lock.json";
 }
 
 bootstrap $@;

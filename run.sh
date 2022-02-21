@@ -506,6 +506,7 @@ function createLibraryWithGitHubCiCd() {
 
 function createLibraryWithAwsCiCd() {
   DOCKER_FILE_NAME="createLibraryWithAwsCiCd.Dockerfile";
+  CLOUD_FORMATION_TEMPLATE_FILE_NAME="ci-cd.template.json";
 
   # Parameters.
   artifactName=${1};
@@ -592,7 +593,7 @@ function createLibraryWithAwsCiCd() {
 
   # Create CI/CD infrastructure.
   aws cloudformation deploy \
-    --template-file ./aws/ci-cd.template.json \
+    --template-file "./aws/${CLOUD_FORMATION_TEMPLATE_FILE_NAME}" \
     --stack-name ${artifactName} \
     --capabilities CAPABILITY_NAMED_IAM \
     --parameter-overrides GitHubRepositoryUrl=${repositoryUrl} NpmAuthTokenSecretArn=${awsNpmAuthTokenSecretArn} || \
@@ -657,6 +658,7 @@ function createLibraryWithAwsCiCd() {
 function createWebsite() {
   DOCKER_FILE_NAME="createWebsite.Dockerfile";
   FINISH_DOCKER_FILE_NAME="finishCreateWebsite.Dockerfile";
+  CLOUD_FORMATION_TEMPLATE_FILE_NAME="ci-cd.template.json";
 
   # Parameters.
   artifactName=${1};
@@ -735,7 +737,7 @@ function createWebsite() {
 
   # Create CI/CD infrastructure.
   aws cloudformation deploy \
-    --template-file ./aws/ci-cd.template.json \
+    --template-file "./aws/${CLOUD_FORMATION_TEMPLATE_FILE_NAME}" \
     --stack-name ${artifactName} \
     --capabilities CAPABILITY_NAMED_IAM \
     --parameter-overrides GitHubRepositoryUrl=${repositoryUrl} || \
