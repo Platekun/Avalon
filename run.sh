@@ -671,6 +671,7 @@ function createWebsite() {
   finishContainerName="${artifactName}-finish-container";
   sourceCodePath="$(pwd)/${artifactName}";
   finishSourceCodePathWorkdir="/${artifactName}";
+  codeBuildDockerRuntimeRoleName="${artifactName}-CodeBuildDockerRuntimeRole";
 
   # Docker - Node modules volume.
   nodeModulesVolumeName="${artifactName}-node_modules";
@@ -719,7 +720,7 @@ function createWebsite() {
     {
         avalog "${RED} Bootstrap Error. Failed while copying the contents of the source code volume into a new `website` directory.${END_COLOR}";
         rollback ${artifactName};
-  
+
         exit 1;
     };
 
@@ -760,9 +761,13 @@ function createWebsite() {
         exit 1;
     };
 
-  codeBuildDockerRuntimeRoleName="${artifactName}-CodeBuildDockerRuntimeRole";
+  codeBuildDockerRuntimeRoleArn=$(aws iam get-role --role-name ${codeBuildDockerRuntimeRoleName} --query "Role.Arn" --output text) || \
+  {
+    avalog "${RED}Failed to obtain the Docker runtime role's ARN in your CloudFormation stack.${END_COLOR}";
+    rollback ${artifactName};
 
-  codeBuildDockerRuntimeRoleArn=$(aws iam get-role --role-name ${codeBuildDockerRuntimeRoleName} --query "Role.Arn" --output text);
+    exit 1;
+  };
 
   # Run the "finish website" command container.
   docker container run \
@@ -798,9 +803,29 @@ function createWebsite() {
   docker container rm ${finishContainerName} &> /dev/null;
   docker image rm ${finishImageName} &> /dev/null;
 
-  awsRegion=$(aws configure get region);
-  awsAccountId=$(aws sts get-caller-identity --query "Account" --output text);
-  cdnDistributionEtag=$(aws cloudformation describe-stack-resources --stack-name ${artifactName} --query "StackResources" | jq '.[] | select(.LogicalResourceId == "CdnDistribution")' | jq -r ".PhysicalResourceId");
+  awsRegion=$(aws configure get region) || \
+  {
+      avalog "${RED}Failed to obtain the AWS region configured for the AWS CLI.${END_COLOR}";
+      rollback ${artifactName};
+
+      exit 1;
+  };
+
+  awsAccountId=$(aws sts get-caller-identity --query "Account" --output text) || \
+  {
+      avalog "${RED}Failed to obtain the AWS account id configured for the AWS CLI.${END_COLOR}";
+      rollback ${artifactName};
+
+      exit 1;
+  };
+
+  cdnDistributionEtag=$(aws cloudformation describe-stack-resources --stack-name ${artifactName} --query "StackResources" | jq '.[] | select(.LogicalResourceId == "CdnDistribution")' | jq -r ".PhysicalResourceId") || \
+  {
+    avalog "${RED}Failed to obtain the CDN resource in your CloudFormation stack.${END_COLOR}";
+    rollback ${artifactName};
+
+    exit 1;
+  };
 
   avalog "${GREEN}Success!${END_COLOR} Bootstrapped ${BLUE}${artifactName}${END_COLOR} at ${BLUE}\"$(pwd)/${artifactName}\"${END_COLOR}.";
   logBlankLine;

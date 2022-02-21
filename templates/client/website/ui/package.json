@@ -4,7 +4,6 @@
   "scripts": {
     "build": "parcel build 'source/*.html'",
     "format": "prettier --write .",
-    "release": "TODO",
     "start:development": "parcel 'source/*.html' -p 8080"
   },
   "devDependencies": {
