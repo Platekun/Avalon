@@ -1,0 +1,32 @@
+#!/bin/bash
+
+GREEN="\033[0;32m";
+END_COLOR="\033[0m";
+
+function avalog() {
+  message=${1};
+
+  echo -e "${GREEN}[Avalon]${END_COLOR} - $(date +"%m-%d-%Y, %r") - ${message}";
+}
+
+avalog "${GREEN}🪝⠀⠀Running pre-push hook.${END_COLOR}";
+
+targetBranch=`git rev-parse --abbrev-ref HEAD`;
+pushCommand=`ps -ocommand= -p ${PPID}`;
+
+if [[ ${targetBranch} =~ ^(master|main|dev)$ ]]
+then  
+  avalog "${RED}😵‍💫 Push policy error: Prevented push to branch "${targetBranch}". If you really want to do this, use --no-verify to bypass this pre-push hook.${END_COLOR}";
+
+  exit 1;
+else
+  bash "scripts/format.sh";
+
+  git add --all;
+
+  git commit -m "chore: Format files" --no-verify;
+
+  avalog "${GREEN}Success!${END_COLOR} Pre-push hook completed execution successfully.${END_COLOR}";
+
+  exit 0;
+fi

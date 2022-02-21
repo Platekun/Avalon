@@ -1,0 +1,20 @@
+#!/bin/bash
+
+GREEN="\033[0;32m";
+END_COLOR="\033[0m";
+
+function avalog() {
+  message=${1};
+
+  echo -e "${GREEN}[Avalon]${END_COLOR} - $(date +"%m-%d-%Y, %r") - ${message}";
+}
+
+avalog "${GREEN}🪝⠀⠀Running pre-commit hook.${END_COLOR}";
+
+bash "scripts/format.sh";
+
+git add --all;
+
+avalog "${GREEN}Success!${END_COLOR} Pre-commit hook completed execution successfully.${END_COLOR}";
+
+exit 0;

@@ -336,12 +336,22 @@ function createLibraryWithNoCiCd() {
   # Setup version control.
   cd ${artifactName};
   git init;
+  
+  rm .git/hooks/pre-commit.sample;
+  rm .git/hooks/pre-push.sample;
+
+  cp ${AVALON_PATH}/templates/githooks/pre-commit ./.git/hooks/pre-commit;
+  cp ${AVALON_PATH}/templates/githooks/pre-push ./.git/hooks/pre-push;
+
+  chmod +x ./.git/hooks/pre-push;
+  chmod +x ./.git/hooks/pre-commit;
+
   git add --all;
-  git commit -m "Initial commit from Avalon v${AVALON_VERSION}";
+  git commit -m "Initial commit from Avalon v${AVALON_VERSION}" --no-verify;
   git remote add origin ${repositoryUrl};
-  git push -u origin main;
+  git push -u origin main --no-verify;
   git checkout -b dev;
-  git push -u origin dev;
+  git push -u origin dev --no-verify;
 
   avalog "${GREEN}Cleaning up...${END_COLOR}";
 
@@ -455,12 +465,22 @@ function createLibraryWithGitHubCiCd() {
   # Setup version control.
   cd ${artifactName};
   git init;
+
+  rm .git/hooks/pre-commit.sample;
+  rm .git/hooks/pre-push.sample;
+
+  cp ${AVALON_PATH}/templates/githooks/pre-commit ./.git/hooks/pre-commit;
+  cp ${AVALON_PATH}/templates/githooks/pre-push ./.git/hooks/pre-push;
+
+  chmod +x ./.git/hooks/pre-push;
+  chmod +x ./.git/hooks/pre-commit;
+
   git add --all;
-  git commit -m "Initial commit from Avalon v${AVALON_VERSION}";
+  git commit -m "Initial commit from Avalon v${AVALON_VERSION}" --no-verify;
   git remote add origin ${repositoryUrl};
-  git push -u origin main;
+  git push -u origin main --no-verify;
   git checkout -b dev;
-  git push -u origin dev;
+  git push -u origin dev --no-verify;
   cd ..;
 
   avalog "${GREEN}Cleaning up...${END_COLOR}";
@@ -582,12 +602,22 @@ function createLibraryWithAwsCiCd() {
   # Setup version control.
   cd ${artifactName};
   git init;
+
+  rm .git/hooks/pre-commit.sample;
+  rm .git/hooks/pre-push.sample;
+
+  cp ${AVALON_PATH}/templates/githooks/pre-commit ./.git/hooks/pre-commit;
+  cp ${AVALON_PATH}/templates/githooks/pre-push ./.git/hooks/pre-push;
+
+  chmod +x ./.git/hooks/pre-push;
+  chmod +x ./.git/hooks/pre-commit;
+
   git add --all;
-  git commit -m "Initial commit from Avalon v${AVALON_VERSION}";
+  git commit -m "Initial commit from Avalon v${AVALON_VERSION}" --no-verify;
   git remote add origin ${repositoryUrl};
-  git push -u origin main;
+  git push -u origin main --no-verify;
   git checkout -b dev;
-  git push -u origin dev;
+  git push -u origin dev --no-verify;
 
   avalog "${GREEN}Creating AWS CI/CD infrastructure...${END_COLOR}";
 
@@ -790,12 +820,22 @@ function createWebsite() {
   # Setup version control.
   cd ${artifactName};
   git init;
+
+  rm .git/hooks/pre-commit.sample;
+  rm .git/hooks/pre-push.sample;
+
+  cp ${AVALON_PATH}/templates/githooks/pre-commit ./.git/hooks/pre-commit;
+  cp ${AVALON_PATH}/templates/githooks/pre-push ./.git/hooks/pre-push;
+
+  chmod +x ./.git/hooks/pre-push;
+  chmod +x ./.git/hooks/pre-commit;
+
   git add --all;
-  git commit -m "Initial commit from Avalon v${AVALON_VERSION}";
+  git commit -m "Initial commit from Avalon v${AVALON_VERSION}" --no-verify;
   git remote add origin ${repositoryUrl};
-  git push -u origin main;
+  git push -u origin main --no-verify;
   git checkout -b dev;
-  git push -u origin dev;
+  git push -u origin dev --no-verify;
   
   cd ..;
 
